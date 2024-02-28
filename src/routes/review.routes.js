@@ -4,8 +4,9 @@ import { ReviewController } from '@/controllers';
 const reviewRouter = Router();
 
 reviewRouter.post('/', ReviewController.createReview);
-// propertyRouter.get('/:id', PropertyController.getPropertyById);
-// propertyRouter.put('/:id', PropertyController.updateProperty);
-// propertyRouter.delete('/:id', PropertyController.deleteProperty);
+reviewRouter.get('/:id', ReviewController.getReviewById);
+reviewRouter.put('/:id', ReviewController.updateReview);
+reviewRouter.delete('/:id', ReviewController.deleteReview);
+// reviewRouter.post('/e', ReviewController.existreview);
 
 export default reviewRouter;

@@ -62,7 +62,7 @@ model Review {
   rating     Float
   review     String
   reviewDate DateTime
-  userId     String
+  userId     String   @unique
   user       User     @relation(fields: [userId], references: [id])
   propertyId String
   property   Property @relation(fields: [propertyId], references: [id])
