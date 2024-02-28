@@ -8,9 +8,10 @@ export const create = async (data) => {
 
 export const findById = async (id) => {
 	return await prisma.property.findUnique({
-		where: {
-			id,
-		},
+		where: { id },
+		include:{
+			reviews:true,
+		}
 	});
 };
 

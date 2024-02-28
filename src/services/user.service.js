@@ -17,7 +17,8 @@ export const findById = (id) => {
       lastName: true,
       phone: true,
       role: true,
-      properties: true
+      properties: true,
+      reviews:true
     }
   });
 };

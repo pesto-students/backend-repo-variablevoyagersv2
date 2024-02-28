@@ -1,5 +1,4 @@
 import { UserService } from '@/services';
-import { UserValidation } from '@/validations';
 
 export const findUserById = async (req, res) => {
   try {
@@ -18,11 +17,7 @@ export const findUserById = async (req, res) => {
 
 export const createUser = async (req, res) => {
   try {
-    const { error } = UserValidation.userRegistrationSchema.validate(req.body);
 
-    if (error) {
-      return res.status(400).json({  error: error.details[0].message });
-    }
     const existingEmail = await UserService.findByEmail(req.body.email);
     if (existingEmail) {
       return res.status(409).json({
@@ -61,14 +56,6 @@ export const createUser = async (req, res) => {
 
 export const loginUser = async (req, res) => {
   try {
-
-
-	const { error } = UserValidation.userLoginSchema.validate(req.body);
-
-    if (error) {
-      return res.status(400).json({  error: error.details[0].message });
-    }
-
 
     const { email, password } = req.body;
 
