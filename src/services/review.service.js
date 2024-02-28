@@ -13,7 +13,7 @@ export const findById = (id) => {
 }
 
 export const findByUserId = (userId) => {
-    return prisma.review.findUnique({
+    return prisma.review.findFirst({
         where: {
             userId: userId,
         },

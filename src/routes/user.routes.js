@@ -5,7 +5,7 @@ import { UserMiddleware } from '@/middleware';
 const userRouter = Router();
 
 userRouter.get('/:id', UserController.findUserById);
-userRouter.post('/', UserMiddleware.validateCreateUser ,UserController.createUser);
+userRouter.post('/register', UserMiddleware.validateCreateUser ,UserController.createUser);
 userRouter.post('/login',UserMiddleware.validateLogin ,  UserController.loginUser);
 
 
