@@ -1,24 +1,20 @@
 import { ReviewService } from "@/services";
 
 
-
 export const createReview = async (req, res) => {
 	try {
-		// const userId = "bd43d55b-8273-4e09-84ea-bc7bc2e0b373";
-		// const reviewAlreadyDoneByUser = await ReviewService.findByUserId(userId);
 
-		// if (reviewAlreadyDoneByUser) {
-		// 	return res.status(409).json({
-		// 		message: 'Email already exists',
-		// 		status: 409,
-		// 		success: false,
-		// 	});
-		// }
+		const reviewAlreadyDoneByUser = await ReviewService.findByUserId(req.body.userId);
 
-		const currentDate = new Date().toISOString();
-		console.log(currentDate);
+		if (reviewAlreadyDoneByUser) {
+			return res.status(409).json({
+				message: 'review already exists',
+				status: 409,
+				success: false,
+			});
+		}
 
-		const newReview = await ReviewService.create({ ...req.body, reviewDate: currentDate });
+		const newReview = await ReviewService.create(req.body);
 		return res.status(201).json({
 			message: 'success',
 			data: newReview,
@@ -27,29 +23,6 @@ export const createReview = async (req, res) => {
 		});
 	} catch (error) {
 		res.status(500).send({ error: error.message });
-	}
-};
-
-export const getAllReviews = async (req, res) => {
-	try {
-		const id = req.params.id;
-		const result = await PropertyService.findById(id);
-		if (result) {
-			return res.status(200).json({
-				message: 'success',
-				data: result.reviews,
-				status: 200,
-				success: true,
-			});
-		}
-		return res.status(409).json({
-			message: 'Not found',
-			data: null,
-			status: 409,
-			success: true,
-		});
-	} catch (error) {
-		res.status(404).json({ msg: error.message });
 	}
 };
 
