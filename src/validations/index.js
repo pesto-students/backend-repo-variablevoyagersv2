@@ -1,3 +1,3 @@
-import * as UserValidation from "./user.validation"
+import * as UserValidation from "./user.joi"
 
 export { UserValidation };

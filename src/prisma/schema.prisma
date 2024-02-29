@@ -9,9 +9,9 @@ generator client {
 }
 
 datasource db {
-  provider = "mysql"
-  url      = env("DATABASE_URL")
- // shadowDatabaseUrl = env("SHADOW_DATABASE_URL")
+  provider          = "mysql"
+  url               = env("DATABASE_URL")
+  shadowDatabaseUrl = env("SHADOW_DATABASE_URL")
 }
 
 enum Roles {
@@ -19,28 +19,51 @@ enum Roles {
   CUSTOMER
 }
 
-model Property {
-  id  String   @id @default(uuid())
-  venueName String
-  description String
-  capacity String
-  address String
-  country String
-  pincode String
-  lat String
-  lng String
-  ownerId  String
-  owner      User      @relation(fields: [ownerId], references: [id])
+model User {
+  id         String     @id @default(uuid())
+  email      String     @unique
+  firstName  String?
+  lastName   String?
+  password   String
+  phone      String?    @unique
+  role       Roles
+  avatar     String?
+  properties Property[]
+  reviews    Review[]
 }
 
+model Property {
+  id             String          @id @default(uuid())
+  propertyName   String
+  description    String
+  capacity       String
+  address        String
+  city           String
+  country        String
+  pincode        String?
+  lat            String?
+  lng            String?
+  propertyImages PropertyImage[]
+  ownerId        String
+  owner          User            @relation(fields: [ownerId], references: [id])
+  reviews        Review[]
+}
 
-model User {
-  id          String   @id @default(uuid())
-  email       String   @unique
-  firstName    String?
-  lastName    String?
-  password    String
-  phone       String?  @unique
-  role        Roles
-  properties    Property[]
+model PropertyImage {
+  id         String   @id @default(uuid())
+  imgUrl     String
+  caption    String?
+  propertyId String
+  property   Property @relation(fields: [propertyId], references: [id])
+}
+
+model Review {
+  id         String   @id @default(uuid())
+  rating     Float
+  review     String
+  reviewDate DateTime
+  userId     String   @unique
+  user       User     @relation(fields: [userId], references: [id])
+  propertyId String
+  property   Property @relation(fields: [propertyId], references: [id])
 }

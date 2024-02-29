@@ -16,9 +16,7 @@ export const createProperty = async (req, res) => {
 export const getPropertyById = async (req, res) => {
 	try {
 		const id = req.params.id;
-		console.log(id);
 		const result = await PropertyService.findById(id);
-		console.log(result);
 		if (result) {
 			return res.status(200).json({
 				message: 'success',
