@@ -12,4 +12,9 @@ export const config = {
 		ACCESSTOKEN: process.env.ACCESS_TOKEN,
 	},
 	SALT: process.env.SALT,
+	IMAGEKIT: {
+		IMAGEKIT_PUBLIC_KEY: process.env.IMAGEKIT_PUBLIC_KEY,
+		IMAGEKIT_PRIVATE_KEY: process.env.IMAGEKIT_PRIVATE_KEY,
+		IMAGEKIT_URL: process.env.IMAGEKIT_URL,
+	},
 };
