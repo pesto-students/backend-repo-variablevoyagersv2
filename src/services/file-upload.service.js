@@ -8,7 +8,7 @@ const imagekit = new ImageKit({
 	urlEndpoint: config.IMAGEKIT.IMAGEKIT_URL,
 });
 
-export const fileUplaod = async (localFile, folder) => {
+export const fileUpload = async (localFile, folder) => {
 	let file = fs.readFileSync(localFile.path);
 	let imageWidth;
 	const dimensions = sizeOf(file);
@@ -29,6 +29,7 @@ export const fileUplaod = async (localFile, folder) => {
 			},
 		})
 		.then((response) => {
+			console.log(response);
 			fs.unlinkSync(`./uploads/${localFile.filename}`);
 			return response;
 		})

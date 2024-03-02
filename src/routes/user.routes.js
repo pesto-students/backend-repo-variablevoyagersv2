@@ -1,12 +1,11 @@
 import { Router } from 'express';
 import { UserController } from '@/controllers';
-import { UserMiddleware } from '@/middleware';
+import { MulterMiddleware } from '@/middlewares';
 
 const userRouter = Router();
 
 userRouter.get('/:id', UserController.findUserById);
-userRouter.post('/', UserMiddleware.validateCreateUser ,UserController.createUser);
-userRouter.post('/login',UserMiddleware.validateLogin ,  UserController.loginUser);
-
+userRouter.put('/:id', MulterMiddleware.upload.single('avatar'), UserController.updateUser);
+userRouter.delete('/:id', UserController.deleteUser);
 
 export default userRouter;
