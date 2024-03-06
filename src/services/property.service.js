@@ -2,16 +2,23 @@ import { PrismaClient } from '@prisma/client';
 
 const prisma = new PrismaClient();
 
-export const create = async (data) => {
-	return await prisma.property.create({ data });
+export const create = async (data, imgData) => {
+	return await prisma.property.create({
+		data: {
+			...data,
+			propertyImages: {
+				create: [...imgData],
+			},
+		},
+	});
 };
 
 export const findById = async (id) => {
 	return await prisma.property.findUnique({
 		where: { id },
-		include:{
-			reviews:true,
-		}
+		include: {
+			reviews: true,
+		},
 	});
 };
 

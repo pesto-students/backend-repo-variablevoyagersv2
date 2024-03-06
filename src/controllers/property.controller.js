@@ -1,8 +1,19 @@
-import { PropertyService } from '@/services';
+import { FileUploadService, PropertyService } from '@/services';
 
 export const createProperty = async (req, res) => {
+	const { captions, ...rest } = req.body;
+	const imgArr = [];
+	if (req.files) {
+		const fileUploadPromises = req.files.map(async (imgFile, idx) => {
+			const imgRes = await FileUploadService.fileUpload(imgFile, 'property');
+			imgArr.push({ imgUrl: imgRes.url, caption: captions[idx] });
+		});
+
+		await Promise.all(fileUploadPromises);
+	}
+
 	try {
-		const newProperty = await PropertyService.create(req.body);
+		const newProperty = await PropertyService.create(rest, imgArr);
 		return res.status(201).json({
 			message: 'success',
 			data: newProperty,
