@@ -8,7 +8,7 @@ const imagekit = new ImageKit({
 	urlEndpoint: config.IMAGEKIT.IMAGEKIT_URL,
 });
 
-export const fileUpload = async (localFile, folder) => {
+export const fileUpload = async (localFile, folder, caption = '') => {
 	let file = fs.readFileSync(localFile.path);
 	let imageWidth;
 	const dimensions = sizeOf(file);
@@ -24,17 +24,16 @@ export const fileUpload = async (localFile, folder) => {
 			file,
 			fileName: localFile.filename,
 			folder,
+			tags: caption,
 			transformation: {
 				pre: `w-${imageWidth},q-80,f-webp`,
 			},
 		})
 		.then((response) => {
-			console.log(response);
 			fs.unlinkSync(`./uploads/${localFile.filename}`);
 			return response;
 		})
 		.catch((error) => {
-			console.log(error);
 			fs.unlinkSync(`./uploads/${localFile.filename}`);
 			return null;
 		});
