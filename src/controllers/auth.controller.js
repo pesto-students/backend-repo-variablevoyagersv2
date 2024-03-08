@@ -1,5 +1,7 @@
-import { UserService } from '@/services';
+import { config } from '@/config';
+import { UserService, JWTService } from '@/services';
 
+import jwt from 'jsonwebtoken';
 export const createUser = async (req, res) => {
 	try {
 		const existingEmail = await UserService.findByEmail(req.body.email);
@@ -53,13 +55,41 @@ export const loginUser = async (req, res) => {
 			});
 		}
 		delete user.password;
+		const accessToken = JWTService.generateAccessToken(user);
+		const refreshToken = JWTService.generateRefreshToken(user);
+
+		res.cookie('refreshToken', refreshToken, {
+			httpOnly: true,
+		});
 		res.status(200).json({
 			message: 'Login successful',
 			status: 200,
 			success: true,
-			data: user,
+			data: { ...user, accessToken },
 		});
 	} catch (error) {
 		res.status(500).send({ error: error.message });
 	}
+};
+
+export const refreshToken = async (req, res) => {
+	const cookies = req.cookies;
+	if (!cookies?.refreshToken) {
+		return res.sendStatus(400).json({
+			message: 'Refresh token not found',
+			status: 'error',
+		});
+	}
+	const refreshToken = cookies.refreshToken;
+	jwt.verify(refreshToken, config.TOKEN.REFRESH_TOKEN_SECRET, (err, user) => {
+		if (err) {
+			return res.sendStatus(403).json({
+				message: 'Unauthorised',
+				status: 'error',
+			});
+		}
+		const { iat, ...restUser } = user;
+		const accessToken = JWTService.generateAccessToken(restUser);
+		res.json({ accessToken });
+	});
 };
