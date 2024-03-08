@@ -9,7 +9,8 @@ export const config = {
 		PORT: process.env.SERVER_PORT,
 	},
 	TOKEN: {
-		ACCESSTOKEN: process.env.ACCESS_TOKEN,
+		ACCESS_TOKEN_SECRET: process.env.ACCESS_TOKEN_SECRET,
+		REFRESH_TOKEN_SECRET: process.env.REFRESH_TOKEN_SECRET,
 	},
 	SALT: process.env.SALT,
 	IMAGEKIT: {

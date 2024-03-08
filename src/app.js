@@ -2,14 +2,21 @@ import express from 'express';
 import { json } from 'body-parser';
 import { config } from '@/config';
 import cors from 'cors';
-
+import cookieParser from 'cookie-parser';
 import router from '@/routes';
 
 const app = express();
 
-app.use(json());
+const corsOptions = {
+	origin: ['http://127.0.0.1:5173', 'http://localhost:5173'],
+	methods: ['GET', 'POST', 'PUT', 'DELETE'], // Specify the allowed HTTP methods
+	allowedHeaders: ['Content-Type', 'Authorization'], // Specify the allowed headers
+	credentials: true, // Enable credentials (cookies, authorization headers, etc)
+};
 
-app.use(cors({ origin: '*' }));
+app.use(cors(corsOptions));
+app.use(json());
+app.use(cookieParser());
 
 app.get('/', (req, res) => {
 	res.status(200).json({
