@@ -84,7 +84,7 @@ export const refreshToken = async (req, res) => {
 	jwt.verify(refreshToken, config.TOKEN.REFRESH_TOKEN_SECRET, (err, user) => {
 		if (err) {
 			return res.sendStatus(403).json({
-				message: 'Unauthorised',
+				message: 'Unauthorized',
 				status: 'error',
 			});
 		}

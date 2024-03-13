@@ -21,13 +21,14 @@ enum Roles {
 
 enum BookingStatus {
   PENDING
-  CONFIRM
+  CONFIRMED
+  COMPLETED
   CANCELLED
 }
 
 enum PaymentStatus {
   PENDING
-  CONFIRM
+  CONFIRMED
   FAILED
   REFUNDED
 }
@@ -46,6 +47,9 @@ model User {
   phone      String?    @unique
   role       Roles      @default(CUSTOMER)
   avatar     String?
+  createdAt  DateTime   @default(now())
+  updatedAt  DateTime   @updatedAt
+  isDeleted  Boolean    @default(false)
   properties Property[]
   reviews    Review[]
   Bookings   Booking[]
@@ -57,18 +61,33 @@ model Property {
   propertyName   String
   description    String
   capacity       String
+  price          String
+  checkInTime    String
+  checkOutTime   String
   address        String
   city           String
   country        String
   pincode        String?
   lat            String?
   lng            String?
+  extraInfo      String?
+  createdAt      DateTime        @default(now())
+  updatedAt      DateTime        @updatedAt
+  isDeleted      Boolean         @default(false)
   propertyImages PropertyImage[]
   ownerId        String
   owner          User            @relation(fields: [ownerId], references: [id])
   reviews        Review[]
   propertyTags   PropertyTags[]
   Bookings       Booking[]
+  Amenities      Amenity[]
+}
+
+model Amenity {
+  id          String   @id @default(uuid())
+  amenityName String
+  propertyId  String
+  property    Property @relation(fields: [propertyId], references: [id])
 }
 
 model PropertyImage {
@@ -83,7 +102,9 @@ model Review {
   id         String   @id @default(uuid())
   rating     Float
   review     String
-  reviewDate DateTime @default(now())
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+  isDeleted  Boolean  @default(false)
   userId     String   @unique
   user       User     @relation(fields: [userId], references: [id])
   propertyId String
@@ -99,43 +120,48 @@ model PropertyTags {
 }
 
 model Tag {
-  id           String        @id @default(uuid())
+  id           String         @id @default(uuid())
   tagName      String
   propertyTags PropertyTags[]
 }
 
 model Booking {
-  id              String           @id @default(uuid())
-  bookingTime     DateTime         @default(now())
+  id              String            @id @default(uuid())
+  createdAt       DateTime          @default(now())
+  updatedAt       DateTime          @updatedAt
   startDate       DateTime
   endDate         DateTime
   bookingStatus   BookingStatus
   userId          String
-  user            User             @relation(fields: [userId], references: [id])
+  user            User              @relation(fields: [userId], references: [id])
   propertyId      String
-  property        Property         @relation(fields: [propertyId], references: [id])
+  property        Property          @relation(fields: [propertyId], references: [id])
+  bookingDate     DateTime          @default(now())
   Payments        Payment[]
   BookingPayments BookingPayments[]
 }
 
 model BookingPayments {
-  id        String  @id @default(uuid())
+  id        String   @id @default(uuid())
   bookingId String
-  booking   Booking @relation(fields: [bookingId], references: [id])
+  booking   Booking  @relation(fields: [bookingId], references: [id])
   paymentId String
-  payment   Payment @relation(fields: [paymentId], references: [id])
+  payment   Payment  @relation(fields: [paymentId], references: [id])
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 model Payment {
-  id             String           @id @default(uuid())
-  amount         Decimal          @default(0)
-  paymentDate    DateTime         @default(now())
+  id             String            @id @default(uuid())
+  amount         Decimal           @default(0)
+  createdAt      DateTime          @default(now())
+  updatedAt      DateTime          @updatedAt
   paymentMethod  PaymentMethod
   status         PaymentStatus
-  transactionId  String           @default(uuid())
+  transactionId  String            @default(uuid())
   bookingId      String
-  booking        Booking          @relation(fields: [bookingId], references: [id])
+  booking        Booking           @relation(fields: [bookingId], references: [id])
   userId         String
-  user           User             @relation(fields: [userId], references: [id])
+  user           User              @relation(fields: [userId], references: [id])
   BookingPayment BookingPayments[]
 }
