@@ -8,7 +8,7 @@ import router from '@/routes';
 const app = express();
 
 const corsOptions = {
-	origin: ['http://127.0.0.1:5173', 'http://localhost:5173','http://localhost:5174'],
+	origin: config.SERVER.ORIGINS,
 	methods: ['GET', 'POST', 'PUT', 'DELETE'], // Specify the allowed HTTP methods
 	allowedHeaders: ['Content-Type', 'Authorization'], // Specify the allowed headers
 	credentials: true, // Enable credentials (cookies, authorization headers, etc)
@@ -19,6 +19,7 @@ app.use(json());
 app.use(cookieParser());
 
 app.get('/', (req, res) => {
+	console.log('object');
 	res.status(200).json({
 		message: 'success',
 		status: 200,

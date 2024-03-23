@@ -4,7 +4,6 @@ const prisma = new PrismaClient();
 const currentDateIST = new Date().toISOString();
 
 export const create = async (data) => {
-	data.reviewDate = currentDateIST;
 	return await prisma.review.create({ data });
 };
 
