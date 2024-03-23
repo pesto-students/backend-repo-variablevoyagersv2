@@ -7,6 +7,7 @@ export const config = {
 
 	SERVER: {
 		PORT: process.env.SERVER_PORT,
+		ORIGINS: process.env.ORIGINS.split(','),
 	},
 	TOKEN: {
 		ACCESS_TOKEN_SECRET: process.env.ACCESS_TOKEN_SECRET,
@@ -18,4 +19,6 @@ export const config = {
 		IMAGEKIT_PRIVATE_KEY: process.env.IMAGEKIT_PRIVATE_KEY,
 		IMAGEKIT_URL: process.env.IMAGEKIT_URL,
 	},
+	
 };
+
