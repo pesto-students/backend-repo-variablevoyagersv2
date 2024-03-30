@@ -10,6 +10,7 @@ propertyRouter.post(
 	MulterMiddleware.upload.array('propertyImages', 5),
 	PropertyController.createProperty,
 );
+propertyRouter.get('/', PropertyController.getProperties);
 propertyRouter.get('/:id', PropertyController.getPropertyById);
 propertyRouter.put('/:id', PropertyController.updateProperty);
 propertyRouter.delete('/:id', PropertyController.deleteProperty);

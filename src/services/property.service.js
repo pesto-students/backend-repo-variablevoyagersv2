@@ -18,9 +18,7 @@ export const findById = async (id) => {
 		where: { id },
 		include: {
 			reviews: true,
-		},
-		include: {
-			reviews: true,
+			propertyImages:true,
 			propertyTags: {
 				select: {
 					tag: {
@@ -43,6 +41,10 @@ export const findById = async (id) => {
 	};
 };
 
+// get all propertie
+export const findMany = async (id) => {
+	return await prisma.property.findMany();
+};
 
 export const update = async (id, data) => {
 	return await prisma.property.update({
@@ -52,6 +54,7 @@ export const update = async (id, data) => {
 		data,
 	});
 };
+
 export const remove = async (id) => {
 	return await prisma.property.delete({
 		where: {
