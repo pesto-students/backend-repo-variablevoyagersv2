@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import { PropertyController } from '@/controllers';
-import { MulterMiddleware, PropertyMiddleware } from '@/middlewares';
+import { AuthMiddleware, MulterMiddleware, PropertyMiddleware } from '@/middlewares';
 
 const propertyRouter = Router();
 
@@ -10,6 +10,7 @@ propertyRouter.post(
 	MulterMiddleware.upload.array('propertyImages', 5),
 	PropertyController.createProperty,
 );
+propertyRouter.get('/owner-property/:id', AuthMiddleware.verifyToken, PropertyController.getAllOwnerProperty);
 propertyRouter.get('/', PropertyController.getProperties);
 propertyRouter.get('/:id', PropertyController.getPropertyById);
 propertyRouter.put('/:id', PropertyController.updateProperty);
