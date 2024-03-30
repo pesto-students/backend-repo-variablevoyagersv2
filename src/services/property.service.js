@@ -43,7 +43,29 @@ export const findById = async (id) => {
 
 // get all propertie
 export const findMany = async (id) => {
-	return await prisma.property.findMany();
+	return await prisma.property.findMany({
+		include:{
+			propertyImages:true,
+		}
+	});
+};
+
+export const findManyById = async (id) => {
+	return await prisma.property.findMany({
+		where: { ownerId: id },
+		include: {
+			propertyImages: true,
+			propertyTags: {
+				select: {
+					tag: {
+						select: {
+							tagName: true,
+						},
+					},
+				},
+			},
+		},
+	});
 };
 
 export const update = async (id, data) => {

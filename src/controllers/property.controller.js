@@ -46,7 +46,28 @@ export const getProperties = async (req, res) => {
 		res.status(404).json({ msg: error.message });
 	}
 };
-
+export const getAllOwnerProperty = async (req, res) => {
+	try {
+		const id = req.params.id;
+		const result = await PropertyService.findManyById(id);
+		if (result) {
+			return res.status(200).json({
+				message: 'success',
+				data: result,
+				status: 200,
+				success: true,
+			});
+		}
+		return res.status(409).json({
+			message: 'Not found',
+			data: null,
+			status: 409,
+			success: true,
+		});
+	} catch (error) {
+		res.status(404).json({ msg: error.message });
+	}
+};
 export const getPropertyById = async (req, res) => {
 	try {
 		const id = req.params.id;
