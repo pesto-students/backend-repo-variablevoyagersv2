@@ -29,9 +29,15 @@ export const createUser = async (req, res) => {
 			password: hashedPassword,
 		});
 		delete newUser.password;
+		const accessToken = JWTService.generateAccessToken(newUser);
+		const refreshToken = JWTService.generateRefreshToken(newUser);
+
+		res.cookie('refreshToken', refreshToken, {
+			httpOnly: true,
+		});
 		return res.status(201).json({
 			message: 'success',
-			data: newUser,
+			data: { ...newUser, accessToken },
 			status: 201,
 			success: true,
 		});
