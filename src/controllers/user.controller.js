@@ -17,8 +17,8 @@ export const findUserById = async (req, res) => {
 };
 
 export const getCurrentUser = async (req, res) => {
-	// console.log("CU",req.user);
-	const {isDeleted,iat,exp,...restdata} = req.user
+	const user = await UserService.findCurrentUser(req.user.id);
+	const { isDeleted, password, ...restdata } = user;
 	return res.status(200).json({
 		message: 'success',
 		data: restdata,
@@ -33,12 +33,12 @@ export const updateUser = async (req, res) => {
 		const id = req.params.id;
 		let dataToUpdate = req.body;
 
-		// if (req.file) {
-		// 	const imgRes = await FileUploadService.fileUpload(req.file, 'avatar');
-		// 	if (imgRes) {
-		// 		dataToUpdate.avatar = imgRes.url;
-		// 	}
-		// }
+		if (req.file) {
+			const imgRes = await FileUploadService.fileUpload(req.file, 'avatar');
+			if (imgRes) {
+				dataToUpdate.avatar = imgRes.url;
+			}
+		}
 
 		const result = await UserService.update(id, dataToUpdate);
 		delete result.password;

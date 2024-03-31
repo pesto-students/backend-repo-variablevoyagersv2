@@ -77,7 +77,19 @@ export const loginUser = async (req, res) => {
 		res.status(500).send({ error: error.message });
 	}
 };
+export const logoutUser = async (req, res) => {
+	const options = {
+		httpOnly: true,
+		secure: true,
+	};
 
+	return res.status(200).clearCookie('refreshToken', options).json({
+		message: 'User logged Out',
+		status: 200,
+		success: true,
+		data: {},
+	});
+};
 export const refreshToken = async (req, res) => {
 	const cookies = req.cookies;
 	if (!cookies?.refreshToken) {
