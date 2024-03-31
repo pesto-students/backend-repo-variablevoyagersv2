@@ -31,6 +31,12 @@ export const findByPhone = (phone) => {
 	return prisma.user.findUnique({ where: { phone } });
 };
 
+export const findCurrentUser = (id) => {
+	return prisma.user.findUnique({
+		where: { id },
+	});
+};
+
 export const findByCredentials = async (email, password) => {
 	const user = await findByEmail(email);
 	if (!user) {
