@@ -1,6 +1,6 @@
 import { config } from '@/config';
 import { UserService, JWTService } from '@/services';
-
+import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 export const createUser = async (req, res) => {
 	try {
@@ -109,5 +109,52 @@ export const refreshToken = async (req, res) => {
 		const { iat, ...restUser } = user;
 		const accessToken = JWTService.generateAccessToken(restUser);
 		res.json({ accessToken });
+	});
+};
+
+export const changePassword = async (req, res) => {
+	const { id, oldPassword, newPassword } = req.body;
+	if (!id || !oldPassword || !newPassword) {
+		return res.status(400).json({
+			message: 'Required field missing',
+			status: 400,
+			success: false,
+		});
+	}
+	const user = await UserService.findById(id);
+
+	if (!user) {
+		return res.status(400).json({
+			message: 'User not found',
+			status: 400,
+			success: false,
+		});
+	}
+	console.log(user);
+	const { password } = user;
+	const compare = await bcrypt.compare(oldPassword, password);
+	if (!compare) {
+		return res.status(400).json({
+			message: 'Incorrect Password',
+			status: 400,
+			success: false,
+		});
+	}
+	const hashedPassword = await UserService.hashPassword(newPassword);
+	const result = await UserService.updatePassword(id, hashedPassword);
+	console.log(result);
+	if (!result) {
+		return res.status(400).json({
+			message: 'Password Changed Failed',
+			status: 400,
+			success: false,
+		});
+	}
+	delete result.password;
+	return res.status(200).json({
+		message: 'Success',
+		status: 200,
+		success: true,
+		data: { ...result },
 	});
 };

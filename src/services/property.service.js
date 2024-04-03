@@ -18,17 +18,27 @@ export const findById = async (id) => {
 		where: { id },
 		include: {
 			reviews: true,
-			propertyImages:true,
+			owner: {
+				select: {
+					id: true,
+					email: true,
+					firstName: true,
+					lastName: true,
+					phone: true,
+					avatar: true,
+				},
+			},
+			propertyImages: true,
 			propertyTags: {
 				select: {
 					tag: {
 						select: {
-							tagName: true
-						}
-					}
-				}
-			}
-		}
+							tagName: true,
+						},
+					},
+				},
+			},
+		},
 	});
 
 	// Extract tag names from the result
@@ -37,16 +47,16 @@ export const findById = async (id) => {
 	// Return the result with propertyTags as an array of tag names
 	return {
 		...propertyWithTags,
-		propertyTags: propertyTagsWithNames
+		propertyTags: propertyTagsWithNames,
 	};
 };
 
 // get all propertie
 export const findMany = async (id) => {
 	return await prisma.property.findMany({
-		include:{
-			propertyImages:true,
-		}
+		include: {
+			propertyImages: true,
+		},
 	});
 };
 

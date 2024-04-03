@@ -10,16 +10,6 @@ export const create = async (user) => {
 export const findById = (id) => {
 	return prisma.user.findUnique({
 		where: { id },
-		select: {
-			id: true,
-			email: true,
-			firstName: true,
-			lastName: true,
-			phone: true,
-			role: true,
-			properties: true,
-			reviews: true,
-		},
 	});
 };
 
@@ -71,5 +61,13 @@ export const remove = async (id) => {
 		where: {
 			id,
 		},
+	});
+};
+export const updatePassword = async (id, password) => {
+	return await prisma.user.update({
+		where: {
+			id,
+		},
+		data: { password },
 	});
 };
