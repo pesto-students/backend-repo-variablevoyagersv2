@@ -1,10 +1,11 @@
 import { FileUploadService, UserService } from '@/services';
-
+import bcrypt from 'bcrypt';
 export const findUserById = async (req, res) => {
 	// console.log("findUserById");
 	try {
 		const id = req.params.id;
 		const user = await UserService.findById(id);
+		delete user.password;
 		return res.status(200).json({
 			message: 'success',
 			data: user,
