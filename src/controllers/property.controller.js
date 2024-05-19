@@ -26,7 +26,6 @@ export const createProperty = async (req, res) => {
 };
 export const getProperties = async (req, res) => {
 	try {
-	
 		const result = await PropertyService.findMany();
 		if (result) {
 			return res.status(200).json({
