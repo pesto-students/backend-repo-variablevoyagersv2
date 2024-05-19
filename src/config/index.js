@@ -6,7 +6,7 @@ export const config = {
 	API_VERSION_URL: '/api/v1',
 
 	SERVER: {
-		PORT: process.env.SERVER_PORT,
+		PORT: process.env.SERVER_PORT || 5050,
 		ORIGINS: process.env.ORIGINS.split(','),
 	},
 	TOKEN: {
@@ -19,6 +19,4 @@ export const config = {
 		IMAGEKIT_PRIVATE_KEY: process.env.IMAGEKIT_PRIVATE_KEY,
 		IMAGEKIT_URL: process.env.IMAGEKIT_URL,
 	},
-	
 };
-

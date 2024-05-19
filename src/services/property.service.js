@@ -3,12 +3,72 @@ import { PrismaClient } from '@prisma/client';
 const prisma = new PrismaClient();
 
 export const create = async (data, imgData) => {
+	// console.log(data, imgData);
+	// return;
+	const {
+		propertyName,
+		description,
+		capacity,
+		price,
+		checkInTime,
+		checkOutTime,
+		address,
+		city,
+		country,
+		pincode,
+		lat,
+		lng,
+		extraInfo,
+		ownerId,
+		propertyTags,
+		Amenities,
+	} = data;
+	const propertyTagsArr = Array.isArray(propertyTags) ? propertyTags : [propertyTags];
+	const amenitiesArr = Array.isArray(Amenities) ? Amenities : [Amenities];
+	let a = amenitiesArr.map((amenity) => ({ amenityName: amenity }));
+	let t = propertyTagsArr.map((tag, idx) => ({
+		tagName: tag,
+		id: idx.toString(),
+	}));
+
 	return await prisma.property.create({
 		data: {
-			...data,
+			propertyName,
+			description,
+			capacity,
+			price,
+			checkInTime,
+			checkOutTime,
+			address,
+			city,
+			country,
+			pincode,
+			lat,
+			lng,
+			extraInfo,
+			ownerId,
 			propertyImages: {
 				create: [...imgData],
 			},
+
+			Amenities: {
+				create: [...a],
+			},
+			propertyTags: {
+				create: t.map((tag) => ({
+					tag: {
+						connectOrCreate: {
+							where: { id: tag.id },
+							create: { tagName: tag.tagName, id: tag.id },
+						},
+					},
+				})),
+			},
+		},
+		include: {
+			propertyTags: true,
+			Amenities: true,
+			propertyImages: true,
 		},
 	});
 };
@@ -29,6 +89,11 @@ export const findById = async (id) => {
 				},
 			},
 			propertyImages: true,
+			Amenities: {
+				select: {
+					amenityName: true,
+				},
+			},
 			propertyTags: {
 				select: {
 					tag: {
@@ -43,11 +108,13 @@ export const findById = async (id) => {
 
 	// Extract tag names from the result
 	const propertyTagsWithNames = propertyWithTags.propertyTags.map((propertyTag) => propertyTag.tag.tagName);
+	const amenitiesNames = propertyWithTags.Amenities.map((amenity) => amenity.amenityName);
 
 	// Return the result with propertyTags as an array of tag names
 	return {
 		...propertyWithTags,
 		propertyTags: propertyTagsWithNames,
+		Amenities: amenitiesNames,
 	};
 };
 
