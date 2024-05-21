@@ -3,33 +3,12 @@ import { PrismaClient } from '@prisma/client';
 const prisma = new PrismaClient();
 
 export const create = async (data, imgData) => {
-	// console.log(data, imgData);
-	// return;
-	const {
-		propertyName,
-		description,
-		capacity,
-		price,
-		checkInTime,
-		checkOutTime,
-		address,
-		city,
-		country,
-		pincode,
-		lat,
-		lng,
-		extraInfo,
-		ownerId,
-		propertyTags,
-		Amenities,
-	} = data;
-	const propertyTagsArr = Array.isArray(propertyTags) ? propertyTags : [propertyTags];
-	const amenitiesArr = Array.isArray(Amenities) ? Amenities : [Amenities];
-	let a = amenitiesArr.map((amenity) => ({ amenityName: amenity }));
-	let t = propertyTagsArr.map((tag, idx) => ({
-		tagName: tag,
-		id: idx.toString(),
-	}));
+	let { propertyName, description, capacity, price, checkInTime, checkOutTime, address, city, country, pincode, lat, lng, extraInfo, ownerId } = data;
+	const propertyTags = JSON.parse(data.propertyTags);
+	let Amenities = [];
+	if (data.Amenities) {
+		Amenities = JSON.parse(data.Amenities);
+	}
 
 	return await prisma.property.create({
 		data: {
@@ -52,10 +31,10 @@ export const create = async (data, imgData) => {
 			},
 
 			Amenities: {
-				create: [...a],
+				create: [...Amenities],
 			},
 			propertyTags: {
-				create: t.map((tag) => ({
+				create: propertyTags.map((tag) => ({
 					tag: {
 						connectOrCreate: {
 							where: { id: tag.id },
@@ -88,7 +67,7 @@ export const findById = async (id) => {
 					lastName: true,
 					phone: true,
 					avatar: true,
-				}
+				},
 			},
 			propertyImages: true,
 			Amenities: {
@@ -108,11 +87,9 @@ export const findById = async (id) => {
 		},
 	});
 
-	// Extract tag names from the result
 	const propertyTagsWithNames = propertyWithTags.propertyTags.map((propertyTag) => propertyTag.tag.tagName);
 	const amenitiesNames = propertyWithTags.Amenities.map((amenity) => amenity.amenityName);
 
-	// Return the result with propertyTags as an array of tag names
 	return {
 		...propertyWithTags,
 		propertyTags: propertyTagsWithNames,
@@ -148,20 +125,38 @@ export const findManyById = async (id) => {
 	});
 };
 
-export const update = async (id, data) => {
+export const update = async (id, reqObj) => {
+	const { allImages, parsedPropertyTags, parsedAmenities, lat, lan, ...rest } = reqObj;
 	return await prisma.property.update({
 		where: {
 			id,
 		},
-		data,
-	});
-};
+		data: {
+			...rest,
 
-export const remove = async (id) => {
-	return await prisma.property.delete({
-		where: {
-			id,
+			propertyImages: {
+				deleteMany: {},
+				create: [...allImages],
+			},
+
+			Amenities: {
+				deleteMany: {},
+				create: [...parsedAmenities],
+			},
+		},
+		include: {
+			propertyTags: true,
+			Amenities: true,
+			propertyImages: true,
 		},
 	});
 };
 
+export const remove = async (id) => {
+	return await prisma.property.update({
+		where: {
+			id,
+		},
+		data: { isDeleted: true },
+	});
+};
