@@ -2,11 +2,13 @@ import { FileUploadService, PropertyService } from '@/services';
 
 export const createProperty = async (req, res) => {
 	const { captions, ...rest } = req.body;
+	const parsedCaptions = JSON.parse(captions);
 	const imgArr = [];
+
 	if (req.files) {
 		const fileUploadPromises = req.files.map(async (imgFile, idx) => {
 			const imgRes = await FileUploadService.fileUpload(imgFile, 'property');
-			imgArr.push({ imgUrl: imgRes.url, caption: captions[idx] });
+			imgArr.push({ imgUrl: imgRes.url, caption: parsedCaptions[idx] });
 		});
 
 		await Promise.all(fileUploadPromises);
@@ -24,6 +26,7 @@ export const createProperty = async (req, res) => {
 		res.status(500).send({ error: error.message });
 	}
 };
+
 export const getProperties = async (req, res) => {
 	try {
 		const { city, search } = req.query;
@@ -104,9 +107,35 @@ export const getPropertyById = async (req, res) => {
 	}
 };
 export const updateProperty = async (req, res) => {
+	const { propertyImagesUrls, propertyTags, Amenities, captions, ...rest } = req.body;
+	const parsedPropertyTags = JSON.parse(propertyTags);
+	let parsedAmenities = [];
+	if (Amenities) {
+		parsedAmenities = JSON.parse(Amenities);
+	}
+	const parsedImageUrls = propertyImagesUrls ? JSON.parse(propertyImagesUrls) : [];
+	const parsedCaptions = JSON.parse(captions);
+	const imgArr = [];
+
+	if (req.files) {
+		const fileUploadPromises = req.files.map(async (imgFile, idx) => {
+			const imgRes = await FileUploadService.fileUpload(imgFile, 'property');
+			imgArr.push({ imgUrl: imgRes.url, caption: parsedCaptions[idx] });
+		});
+
+		await Promise.all(fileUploadPromises);
+	}
+
+	let allImages = [...parsedImageUrls, ...imgArr];
+	allImages = allImages.map((ele) => {
+		return { caption: ele.caption, imgUrl: ele.imgUrl };
+	});
+
+	const reqObj = { ...rest, allImages, parsedPropertyTags, parsedAmenities };
+
 	try {
 		const id = req.params.id;
-		const result = await PropertyService.update(id, req.body);
+		const result = await PropertyService.update(id, reqObj);
 		return res.status(200).json({
 			message: 'success',
 			data: result,

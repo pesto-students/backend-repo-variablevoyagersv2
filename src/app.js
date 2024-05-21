@@ -4,6 +4,7 @@ import { config } from '@/config';
 import cors from 'cors';
 import cookieParser from 'cookie-parser';
 import router from '@/routes';
+import { filterDeleted } from './middlewares/filterDeleted.middleware ';
 
 const app = express();
 
@@ -26,7 +27,7 @@ app.get('/', (req, res) => {
 		success: true,
 	});
 });
-
+app.use(filterDeleted);
 app.use(config.API_VERSION_URL, router);
 
 app.listen(config.SERVER.PORT, () => {
