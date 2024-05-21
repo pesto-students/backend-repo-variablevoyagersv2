@@ -26,7 +26,21 @@ export const createProperty = async (req, res) => {
 };
 export const getProperties = async (req, res) => {
 	try {
-		const result = await PropertyService.findMany();
+		const { city, search } = req.query;
+
+		const filters = {};
+
+		if (city) {
+			filters.city = city;
+		}
+
+		// if (search) {
+		// 	filters.propertyName = {
+		// 		contains: search,
+		// 		mode: 'insensitive',
+		// 	};
+		// }
+		const result = await PropertyService.findMany(filters);
 		if (result) {
 			return res.status(200).json({
 				message: 'success',
