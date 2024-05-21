@@ -76,8 +76,10 @@ export const create = async (data, imgData) => {
 export const findById = async (id) => {
 	const propertyWithTags = await prisma.property.findUnique({
 		where: { id },
+
 		include: {
 			reviews: true,
+			propertyImages: true,
 			owner: {
 				select: {
 					id: true,
@@ -86,7 +88,7 @@ export const findById = async (id) => {
 					lastName: true,
 					phone: true,
 					avatar: true,
-				},
+				}
 			},
 			propertyImages: true,
 			Amenities: {
@@ -119,8 +121,9 @@ export const findById = async (id) => {
 };
 
 // get all propertie
-export const findMany = async (id) => {
+export const findMany = async (filters = {}) => {
 	return await prisma.property.findMany({
+		where: filters,
 		include: {
 			propertyImages: true,
 		},
@@ -161,3 +164,4 @@ export const remove = async (id) => {
 		},
 	});
 };
+
