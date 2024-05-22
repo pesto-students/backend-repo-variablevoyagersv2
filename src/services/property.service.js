@@ -143,6 +143,17 @@ export const update = async (id, reqObj) => {
 				deleteMany: {},
 				create: [...parsedAmenities],
 			},
+			propertyTags: {
+				deleteMany: {},
+				create: parsedPropertyTags.map((tag) => ({
+					tag: {
+						connectOrCreate: {
+							where: { id: tag.id },
+							create: { tagName: tag.tagName, id: tag.id },
+						},
+					},
+				})),
+			},
 		},
 		include: {
 			propertyTags: true,
