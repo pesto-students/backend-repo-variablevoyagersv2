@@ -10,8 +10,9 @@ generator client {
 
 datasource db {
   provider          = "mysql"
-  url               = env("DATABASE_URL")
-  shadowDatabaseUrl = env("SHADOW_DATABASE_URL")
+  // url               = env("DATABASE_URL")
+  // shadowDatabaseUrl = env("SHADOW_DATABASE_URL")
+  url = env("DATABASE_URL_LOCAL")
 }
 
 enum Roles {
@@ -52,8 +53,8 @@ model User {
   isDeleted  Boolean    @default(false)
   properties Property[]
   reviews    Review[]
-  Bookings   Booking[]
-  Payments   Payment[]
+  bookings   Booking[]
+  payments   Payment[]
 }
 
 model Property {
@@ -79,8 +80,8 @@ model Property {
   owner          User            @relation(fields: [ownerId], references: [id])
   reviews        Review[]
   propertyTags   PropertyTags[]
-  Bookings       Booking[]
-  Amenities      Amenity[]
+  bookings       Booking[]
+  amenities      Amenity[]
 }
 
 model Amenity {
@@ -137,8 +138,8 @@ model Booking {
   propertyId      String
   property        Property          @relation(fields: [propertyId], references: [id])
   bookingDate     DateTime          @default(now())
-  Payments        Payment[]
-  BookingPayments BookingPayments[]
+  payments        Payment[]
+  bookingPayments BookingPayments[]
 }
 
 model BookingPayments {
@@ -163,5 +164,5 @@ model Payment {
   booking        Booking           @relation(fields: [bookingId], references: [id])
   userId         String
   user           User              @relation(fields: [userId], references: [id])
-  BookingPayment BookingPayments[]
+  bookingPayment BookingPayments[]
 }

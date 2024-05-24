@@ -5,9 +5,9 @@ const prisma = new PrismaClient();
 export const create = async (data, imgData) => {
 	let { propertyName, description, capacity, price, checkInTime, checkOutTime, address, city, country, pincode, lat, lng, extraInfo, ownerId } = data;
 	const propertyTags = JSON.parse(data.propertyTags);
-	let Amenities = [];
-	if (data.Amenities) {
-		Amenities = JSON.parse(data.Amenities);
+	let amenities = [];
+	if (data.amenities) {
+		amenities = JSON.parse(data.amenities);
 	}
 
 	return await prisma.property.create({
@@ -30,8 +30,8 @@ export const create = async (data, imgData) => {
 				create: [...imgData],
 			},
 
-			Amenities: {
-				create: [...Amenities],
+			amenities: {
+				create: [...amenities],
 			},
 			propertyTags: {
 				create: propertyTags.map((tag) => ({
@@ -46,7 +46,7 @@ export const create = async (data, imgData) => {
 		},
 		include: {
 			propertyTags: true,
-			Amenities: true,
+			amenities: true,
 			propertyImages: true,
 		},
 	});
@@ -70,7 +70,7 @@ export const findById = async (id) => {
 				},
 			},
 			propertyImages: true,
-			Amenities: {
+			amenities: {
 				select: {
 					amenityName: true,
 				},
@@ -88,12 +88,12 @@ export const findById = async (id) => {
 	});
 
 	const propertyTagsWithNames = propertyWithTags.propertyTags.map((propertyTag) => propertyTag.tag.tagName);
-	const amenitiesNames = propertyWithTags.Amenities.map((amenity) => amenity.amenityName);
+	const amenitiesNames = propertyWithTags.amenities.map((amenity) => amenity.amenityName);
 
 	return {
 		...propertyWithTags,
 		propertyTags: propertyTagsWithNames,
-		Amenities: amenitiesNames,
+		amenities: amenitiesNames,
 	};
 };
 
@@ -139,7 +139,7 @@ export const update = async (id, reqObj) => {
 				create: [...allImages],
 			},
 
-			Amenities: {
+			amenities: {
 				deleteMany: {},
 				create: [...parsedAmenities],
 			},
@@ -157,7 +157,7 @@ export const update = async (id, reqObj) => {
 		},
 		include: {
 			propertyTags: true,
-			Amenities: true,
+			amenities: true,
 			propertyImages: true,
 		},
 	});
