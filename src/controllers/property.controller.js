@@ -107,11 +107,11 @@ export const getPropertyById = async (req, res) => {
 	}
 };
 export const updateProperty = async (req, res) => {
-	const { propertyImagesUrls, propertyTags, Amenities, captions, ...rest } = req.body;
+	const { propertyImagesUrls, propertyTags, amenities, captions, ...rest } = req.body;
 	const parsedPropertyTags = JSON.parse(propertyTags);
 	let parsedAmenities = [];
-	if (Amenities) {
-		parsedAmenities = JSON.parse(Amenities);
+	if (amenities) {
+		parsedAmenities = JSON.parse(amenities);
 	}
 	const parsedImageUrls = propertyImagesUrls ? JSON.parse(propertyImagesUrls) : [];
 	const parsedCaptions = JSON.parse(captions);
