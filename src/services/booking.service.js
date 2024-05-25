@@ -59,7 +59,11 @@ export const getBookingById = async (id) => {
       },
       include: {
         user: true,
-        property: true,
+        property: {
+          include: {
+            propertyImages: true,
+          }
+        },
       },
     });
     if (!booking) {

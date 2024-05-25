@@ -5,6 +5,7 @@ import reviewRouter from './review.routes';
 import propertyTagsRouter from './propertyTags.routes';
 import tagRouter from './tag.routes';
 import authRouter from './auth.routes';
+import bookingRouter from './booking.routes';
 
 const router = express.Router();
 
@@ -14,5 +15,6 @@ router.use('/property', propertyRouter);
 router.use('/review',  reviewRouter);
 router.use('/propertytags', propertyTagsRouter)
 router.use('/tag', tagRouter)
+router.use('/booking', bookingRouter)
 
 export default router;
