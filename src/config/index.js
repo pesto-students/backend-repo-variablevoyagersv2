@@ -19,4 +19,8 @@ export const config = {
 		IMAGEKIT_PRIVATE_KEY: process.env.IMAGEKIT_PRIVATE_KEY,
 		IMAGEKIT_URL: process.env.IMAGEKIT_URL,
 	},
+	RAZORPAY: {
+		KEY_ID: process.env.RAZORPAY_KEY_ID,
+		KEY_SECRET: process.env.RAZORPAY_KEY_SECRET,
+	},
 };
