@@ -24,6 +24,9 @@ export const findByPhone = (phone) => {
 export const findCurrentUser = (id) => {
 	return prisma.user.findUnique({
 		where: { id },
+		include: {
+			bookings: true,
+		},
 	});
 };
 
