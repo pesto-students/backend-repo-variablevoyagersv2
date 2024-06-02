@@ -69,3 +69,19 @@ export const deleteUser = async (req, res) => {
 		res.status(404).json({ msg: error.message });
 	}
 };
+export const deleteEmailAndOtp = async (req, res) => {
+	try {
+		// console.log("delete");
+		const id = req.params.id;
+		const result = await UserService.removeEmailinOtp(id);
+
+		return res.status(200).json({
+			message: 'success',
+			data: result,
+			status: 200,
+			success: true,
+		});
+	} catch (error) {
+		res.status(404).json({ msg: error.message });
+	}
+};
