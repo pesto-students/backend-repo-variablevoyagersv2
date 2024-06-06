@@ -1,3 +1,5 @@
+import { BOOKING_STATUS, PAYMENT_STATUS } from '@/constants/status.constant';
+
 const { PrismaClient } = require('@prisma/client');
 
 const prisma = new PrismaClient();
@@ -11,34 +13,118 @@ export const createBooking = async (startDate, endDate, userId, propertyId) => {
 			},
 		});
 		if (!property) {
-			throw new Error('Property not found');
+			return { error: 'Property not found' };
 		}
 
-		// Create the booking
-		const booking = await prisma.booking.create({
-			data: {
-				startDate,
-				endDate,
-				bookingStatus: 'PENDING',
-				userId,
+		const startDateWithoutTime = new Date(startDate);
+		startDateWithoutTime.setHours(0, 0, 0, 0);
+		const endDateWithoutTime = new Date(endDate);
+		endDateWithoutTime.setHours(23, 59, 59, 999);
+
+		const existingBooking = await prisma.booking.findMany({
+			where: {
 				propertyId,
-			},
-			include: {
-				user: true,
-				property: true,
+				bookingStatus: BOOKING_STATUS.PENDING,
+				startDate: {
+					lte: endDateWithoutTime,
+				},
+				endDate: {
+					gte: startDateWithoutTime,
+				},
 			},
 		});
+		console.log(existingBooking);
 
+		if (existingBooking.length > 0) {
+			return { error: 'Already booked for the selected date range.' };
+		}
+
+		const booking = await prisma.$transaction(async (prisma) => {
+			const createdBooking = await prisma.booking.create({
+				data: {
+					startDate,
+					endDate,
+					bookingStatus: BOOKING_STATUS.PENDING,
+					userId,
+					propertyId,
+				},
+				include: {
+					user: true,
+					property: true,
+				},
+			});
+
+			return createdBooking;
+		});
 		return booking;
 	} catch (error) {
 		console.error('Error creating booking:', error);
-		throw new Error('Failed to create booking');
+		return { error: error.message };
 	}
 };
-export const getUserBookingsById = async (id) => {
+export const getBookingsByCustomerId = async (id) => {
 	try {
 		const bookings = prisma.booking.findMany({
-			where: { userId: id },
+			where: {
+				userId: id,
+
+				bookingStatus: {
+					notIn: [BOOKING_STATUS.PENDING, BOOKING_STATUS.FAILED],
+				},
+
+				// OR: [
+				// 	{ bookingStatus: BOOKING_STATUS.CONFIRMED },
+				// 	{ bookingStatus: BOOKING_STATUS.AWAITING_OWNER_APPROVAL },
+				// 	{ bookingStatus: BOOKING_STATUS.CANCELLED },
+				// 	{ bookingStatus: BOOKING_STATUS.COMPLETED },
+				// 	// {
+				// 	// 	bookingStatus: 'PENDING',
+				// 	// 	createdAt: {
+				// 	// 		gte: new Date(Date.now() - 15 * 60 * 1000),
+				// 	// 	},
+				// 	// },
+				// ],
+			},
+			include: {
+				property: true,
+				payments: true,
+			},
+		});
+		return bookings;
+	} catch (error) {
+		console.error('Error getting bookings:', error);
+		throw new Error('Failed to get bookings');
+	}
+};
+export const getBookingsByOwnerId = async (ownerId) => {
+	try {
+		const bookings = prisma.booking.findMany({
+			where: {
+				property: {
+					ownerId,
+				},
+				OR: [
+					{ bookingStatus: BOOKING_STATUS.CONFIRMED },
+					{
+						bookingStatus: BOOKING_STATUS.AWAITING_OWNER_APPROVAL,
+						createdAt: {
+							// gte: new Date(Date.now() - 3 * 60 * 1000),
+							gte: new Date(Date.now() - 24 * 60 * 60 * 1000), //ONE DAY
+						},
+					},
+					{ bookingStatus: BOOKING_STATUS.CANCELLED },
+					{ bookingStatus: BOOKING_STATUS.COMPLETED },
+				],
+			},
+			include: {
+				user: true,
+				payments: true,
+				property: {
+					include: {
+						propertyImages: true,
+					},
+				},
+			},
 		});
 		return bookings;
 	} catch (error) {
@@ -87,23 +173,116 @@ export const getBookingById = async (id) => {
 	}
 };
 
-export const updateBookingStatus = async (id, bookingStatus) => {
+export const updateBookingStatus = async (bookingId, bookingStatus, paymentStatus) => {
+	console.log({ bookingId, bookingStatus, paymentStatus });
 	try {
-		const booking = await prisma.booking.update({
-			where: {
-				id,
-			},
-			data: {
-				bookingStatus,
-			},
-			include: {
-				user: true,
-				property: true,
-			},
+		return await prisma.$transaction(async (prisma) => {
+			const updatedBooking = await prisma.booking.update({
+				where: { id: bookingId },
+				data: { bookingStatus },
+			});
+
+			if (paymentStatus === PAYMENT_STATUS.REFUNDED) {
+				await prisma.payment.updateMany({
+					where: { bookingId, status: PAYMENT_STATUS.SUCCESS },
+					data: { status: paymentStatus },
+				});
+			}
+
+			return updatedBooking;
 		});
-		return booking;
 	} catch (error) {
 		console.error('Error updating booking status:', error);
 		throw new Error('Failed to update booking status');
+	}
+};
+
+// New methods
+
+export const getExpiredBookings = async (cutoffTime) => {
+	try {
+		const expiredBookings = await prisma.booking.findMany({
+			where: {
+				bookingStatus: 'PENDING',
+				// createdAt: {
+				// 	lt: cutoffTime,
+				// },
+			},
+		});
+		return expiredBookings;
+	} catch (error) {
+		throw new Error('Error retrieving expired bookings');
+	}
+};
+
+export const deleteBooking = async (bookingId) => {
+	try {
+		await prisma.booking.update({
+			where: {
+				id: bookingId,
+			},
+			data: {
+				bookingStatus: BOOKING_STATUS.FAILED,
+			},
+		});
+	} catch (error) {
+		throw new Error('Error deleting booking');
+	}
+};
+
+export const cancelAndRefund = async (bookingId) => {
+	try {
+		await prisma.$transaction(async (prisma) => {
+			await prisma.booking.update({
+				where: { id: bookingId },
+				data: {
+					bookingStatus: BOOKING_STATUS.CANCELLED,
+				},
+			});
+			await prisma.payment.updateMany({
+				where: { bookingId, status: PAYMENT_STATUS.SUCCESS },
+				data: { status: PAYMENT_STATUS.REFUNDED },
+			});
+		});
+	} catch (error) {
+		throw new Error('Error updating booking status');
+	}
+};
+
+export const getPendingOwnerActionBookings = async (cutoffTime) => {
+	try {
+		const pendingBookings = await prisma.booking.findMany({
+			where: {
+				bookingStatus: BOOKING_STATUS.AWAITING_OWNER_APPROVAL,
+				updatedAt: {
+					lt: cutoffTime,
+				},
+			},
+		});
+		return pendingBookings;
+	} catch (error) {
+		throw new Error('Error retrieving pending owner action bookings');
+	}
+};
+
+export const updateCompletedBookings = async (currentDate) => {
+	try {
+		const updatedBookings = await prisma.booking.updateMany({
+			where: {
+				bookingStatus: BOOKING_STATUS.CONFIRMED,
+				paymentStatus: PAYMENT_STATUS.SUCCESS,
+				endDate: {
+					lt: currentDate,
+				},
+			},
+			data: {
+				bookingStatus: BOOKING_STATUS.COMPLETED,
+			},
+		});
+
+		return updatedBookings;
+	} catch (error) {
+		console.error('Error updating completed bookings:', error);
+		throw new Error('Failed to update completed bookings');
 	}
 };

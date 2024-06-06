@@ -57,8 +57,23 @@ export const findById = async (id) => {
 		where: { id },
 
 		include: {
+			bookings: {
+				where: {
+					OR: [
+						{ bookingStatus: 'CONFIRMED' },
+						{ bookingStatus: 'AWAITING_OWNER_APPROVAL' },
+						{
+							bookingStatus: 'PENDING',
+							createdAt: {
+								gte: new Date(Date.now() - 3 * 60 * 1000),
+							},
+						},
+					],
+				},
+			},
 			reviews: true,
 			propertyImages: true,
+			// bookings: true,
 			owner: {
 				select: {
 					id: true,
@@ -86,7 +101,7 @@ export const findById = async (id) => {
 			},
 		},
 	});
-
+	console.log(propertyWithTags);
 	const propertyTagsWithNames = propertyWithTags.propertyTags.map((propertyTag) => propertyTag.tag.tagName);
 	const amenitiesNames = propertyWithTags.amenities.map((amenity) => amenity.amenityName);
 
@@ -98,13 +113,40 @@ export const findById = async (id) => {
 };
 
 // get all propertie
-export const findMany = async (filters = {}) => {
+export const findMany = async (filters) => {
+	console.log(filters);
+	const { city, search, propertyTags } = filters;
 	return await prisma.property.findMany({
-		where: filters,
+		where: {
+			city: city || undefined,
+			propertyName: {
+				contains: search || undefined,
+			},
+			propertyTags: propertyTags
+				? {
+						some: {
+							tag: {
+								tagName: propertyTags,
+							},
+						},
+					}
+				: undefined,
+		},
 		include: {
 			propertyImages: true,
+			propertyTags: {
+				include: {
+					tag: true,
+				},
+			},
 		},
 	});
+	// return await prisma.property.findMany({
+	// 	where: filters,
+	// 	include: {
+	// 		propertyImages: true,
+	// 	},
+	// });
 };
 
 export const findManyById = async (id) => {
