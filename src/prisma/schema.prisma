@@ -39,12 +39,20 @@ enum PaymentMethod {
   UPI
 }
 
+model OTP {
+  id      String   @id @default(uuid())
+  email   String   @unique
+  expires DateTime
+  otp     String?
+}
+
 model User {
   id         String     @id @default(uuid())
   email      String     @unique
+  isNewUser  Boolean    @default(true)
   firstName  String?
   lastName   String?
-  password   String
+  password   String?
   phone      String?    @unique
   role       Roles      @default(CUSTOMER)
   avatar     String?
