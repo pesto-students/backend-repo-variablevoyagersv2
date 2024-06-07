@@ -5,11 +5,11 @@ export const validateCreateUser = (req, res, next) => {
 		email: Joi.string().email().required(),
 		firstName: Joi.string().allow(null, ''),
 		lastName: Joi.string().allow(null, ''),
-		password: Joi.string().required(),
+		// password: Joi.string().required(),
 		phone: Joi.string()
 			.allow(null, '')
 			.pattern(/^[0-9]{10,}$/),
-		role: Joi.string().valid('CUSTOMER', 'OWNER').required(),
+		// role: Joi.string().valid('CUSTOMER', 'OWNER').required(),
 	});
 
 	const { error } = userRegistrationSchema.validate(req.body);

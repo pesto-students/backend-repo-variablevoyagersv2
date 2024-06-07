@@ -2,8 +2,10 @@ import { PrismaClient } from '@prisma/client';
 import { config } from '@/config';
 import bcrypt from 'bcrypt';
 const prisma = new PrismaClient();
+import { addMinutes } from 'date-fns';
 
 export const create = async (user) => {
+	console.log("User", user);
 	return prisma.user.create({ data: user });
 };
 
@@ -17,6 +19,29 @@ export const findByEmail = (email) => {
 	return prisma.user.findUnique({ where: { email } });
 };
 
+// OTP Section
+export const createEmailInOtp = (email) => {
+	const expires = addMinutes(new Date(), 1);
+	return prisma.oTP.create({
+		data: {
+			email: email,
+			expires: expires
+		}
+	});
+};
+export const findOtpEmail = (email) => {
+	return prisma.oTP.findUnique({
+		where: { email: email }
+	});
+};
+
+export const updateOtp = async (email, data) => {
+	return prisma.oTP.update({
+		where: { email: email },
+		data: data
+	});
+};
+
 export const findByPhone = (phone) => {
 	return prisma.user.findUnique({ where: { phone } });
 };
@@ -24,9 +49,6 @@ export const findByPhone = (phone) => {
 export const findCurrentUser = (id) => {
 	return prisma.user.findUnique({
 		where: { id },
-		include: {
-			bookings: true,
-		},
 	});
 };
 
@@ -59,6 +81,9 @@ export const update = async (id, data) => {
 		data: { ...data },
 	});
 };
+
+
+
 export const remove = async (id) => {
 	return await prisma.user.delete({
 		where: {
@@ -66,6 +91,14 @@ export const remove = async (id) => {
 		},
 	});
 };
+export const removeEmailinOtp = async (email) => {
+	return await prisma.oTP.delete({
+		where: {
+			email,
+		},
+	});
+};
+
 export const updatePassword = async (id, password) => {
 	return await prisma.user.update({
 		where: {
