@@ -19,11 +19,19 @@ export const findUserById = async (req, res) => {
 
 export const getCurrentUser = async (req, res) => {
 	const user = await UserService.findCurrentUser(req.user.id);
-	const { isDeleted, password, ...restdata } = user;
-	return res.status(200).json({
+	if (user) {
+		const { isDeleted, password, ...restdata } = user;
+		return res.status(200).json({
+			message: 'success',
+			data: restdata,
+			status: 200,
+			success: true,
+		});
+	}
+	return res.status(404).json({
 		message: 'success',
-		data: restdata,
-		status: 200,
+		data: user,
+		status: 404,
 		success: true,
 	});
 };

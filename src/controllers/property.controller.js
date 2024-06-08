@@ -43,7 +43,7 @@ export const getProperties = async (req, res) => {
 		// 		mode: 'insensitive',
 		// 	};
 		// }
-		const result = await PropertyService.findMany(filters);
+		const result = await PropertyService.findMany(req.query);
 		if (result) {
 			return res.status(200).json({
 				message: 'success',

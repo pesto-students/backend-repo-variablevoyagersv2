@@ -5,7 +5,7 @@ import cors from 'cors';
 import cookieParser from 'cookie-parser';
 import router from '@/routes';
 import { filterDeleted } from './middlewares/filterDeleted.middleware ';
-
+import './services/bookingCron.service';
 const app = express();
 
 const corsOptions = {

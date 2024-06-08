@@ -22,14 +22,16 @@ enum Roles {
 
 enum BookingStatus {
   PENDING
+  AWAITING_OWNER_APPROVAL
+  FAILED
   CONFIRMED
-  COMPLETED
   CANCELLED
+  COMPLETED
 }
 
 enum PaymentStatus {
   PENDING
-  CONFIRMED
+  SUCCESS
   FAILED
   REFUNDED
 }
