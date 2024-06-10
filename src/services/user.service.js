@@ -2,7 +2,7 @@ import { PrismaClient } from '@prisma/client';
 import { config } from '@/config';
 import bcrypt from 'bcrypt';
 const prisma = new PrismaClient();
-import { addMinutes } from 'date-fns';
+// import { addMinutes } from 'date-fns';
 
 export const create = async (user) => {
 	console.log("User", user);
@@ -21,7 +21,7 @@ export const findByEmail = (email) => {
 
 // OTP Section
 export const createEmailInOtp = (email) => {
-	const expires = addMinutes(new Date(), 1);
+	const expires = new Date();
 	return prisma.oTP.create({
 		data: {
 			email: email,

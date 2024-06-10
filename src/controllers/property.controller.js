@@ -37,12 +37,12 @@ export const getProperties = async (req, res) => {
 			filters.city = city;
 		}
 
-		// if (search) {
-		// 	filters.propertyName = {
-		// 		contains: search,
-		// 		mode: 'insensitive',
-		// 	};
-		// }
+		if (search) {
+			filters.propertyName = {
+				contains: search,
+				mode: 'insensitive',
+			};
+		}
 		const result = await PropertyService.findMany(req.query);
 		if (result) {
 			return res.status(200).json({
