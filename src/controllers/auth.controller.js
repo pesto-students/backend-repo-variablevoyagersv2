@@ -97,7 +97,7 @@ export const verifyOtp = async (req, res) => {
     await UserService.removeEmailinOtp(email);
 
     return res.status(200).json({
-      message: 'obBordingPending',
+      message: 'Onboarding pending',
       status: 200,
       success: false,
       data: { ...existingUser, accessToken },
@@ -197,22 +197,29 @@ export const logoutUser = async (req, res) => {
 export const refreshToken = async (req, res) => {
   const cookies = req.cookies;
   if (!cookies?.refreshToken) {
-    return res.sendStatus(400).json({
+    return res.status(400).json({
       message: 'Refresh token not found',
-      status: 'error',
+      status: 400,
+      success: false,
     });
   }
   const refreshToken = cookies.refreshToken;
   jwt.verify(refreshToken, config.TOKEN.REFRESH_TOKEN_SECRET, (err, user) => {
     if (err) {
-      return res.sendStatus(403).json({
+      return res.status(401).json({
         message: 'Unauthorized',
-        status: 'error',
+        status: 401,
+        success: false,
       });
     }
     const { iat, ...restUser } = user;
     const accessToken = JWTService.generateAccessToken(restUser);
-    res.json({ accessToken });
+    res.status(200).json({
+      message: 'success',
+      status: 200,
+      data: accessToken,
+      success: true,
+    });
   });
 };
 
@@ -256,7 +263,7 @@ export const changePassword = async (req, res) => {
   }
   delete result.password;
   return res.status(200).json({
-    message: 'Success',
+    message: 'success',
     status: 200,
     success: true,
     data: { ...result },

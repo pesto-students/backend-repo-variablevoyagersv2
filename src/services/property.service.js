@@ -135,8 +135,35 @@ export const findById = async (id) => {
 // get all propertie
 export const findMany = async (filters) => {
   console.log(filters);
-  const { city, search, propertyTags } = filters;
-  return await prisma.property.findMany({
+  const { city, search, propertyTags, page = 1, limit = 8 } = filters;
+
+  // Convert page and limit to numbers
+  const pageNumber = Number(page);
+  const limitNumber = Number(limit);
+
+  // Calculate the skip value for pagination
+  const skip = (pageNumber - 1) * limitNumber;
+
+  // Get total count for pagination metadata
+  const totalCount = await prisma.property.count({
+    where: {
+      city: city || undefined,
+      propertyName: {
+        contains: search || undefined,
+      },
+      propertyTags: propertyTags
+        ? {
+            some: {
+              tag: {
+                tagName: propertyTags,
+              },
+            },
+          }
+        : undefined,
+    },
+  });
+
+  const properties = await prisma.property.findMany({
     where: {
       city: city || undefined,
       propertyName: {
@@ -160,13 +187,19 @@ export const findMany = async (filters) => {
         },
       },
     },
+    skip,
+    take: limitNumber,
   });
-  // return await prisma.property.findMany({
-  // 	where: filters,
-  // 	include: {
-  // 		propertyImages: true,
-  // 	},
-  // });
+
+  return {
+    properties,
+    pagination: {
+      total: totalCount,
+      page: pageNumber,
+      limit: limitNumber,
+      pages: Math.ceil(totalCount / limitNumber),
+    },
+  };
 };
 
 export const findManyById = async (id) => {
@@ -183,6 +216,9 @@ export const findManyById = async (id) => {
           },
         },
       },
+    },
+    orderBy: {
+      updatedAt: 'desc',
     },
   });
 };
