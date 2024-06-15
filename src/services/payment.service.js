@@ -2,11 +2,11 @@ import { BookingStatus, PaymentStatus, PrismaClient } from '@prisma/client';
 
 const prisma = new PrismaClient();
 export const createPayment = async (data) => {
-  const { bookingId, paymentId, booking, status } = data;
+  const { bookingId, paymentId, booking, amount, status } = data;
   const response = await prisma.$transaction(async (prisma) => {
     const payment = await prisma.payment.create({
       data: {
-        amount: booking.property.price,
+        amount: amount / 100,
         paymentMethod: 'UPI',
         status: PaymentStatus.SUCCESS,
         transactionId: paymentId,
@@ -26,11 +26,11 @@ export const createPayment = async (data) => {
 
 export const createFailedPayment = async (data) => {
   console.log(data);
-  const { bookingId, paymentId, booking, status } = data;
+  const { bookingId, paymentId, booking, amount, status } = data;
   const statusResponse = await prisma.$transaction(async (prisma) => {
     const payment = await prisma.payment.create({
       data: {
-        amount: booking.property.price,
+        amount: amount / 100,
         paymentMethod: 'UPI',
         status: PaymentStatus.FAILED,
         transactionId: paymentId,

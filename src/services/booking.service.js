@@ -35,7 +35,6 @@ export const createBooking = async (startDate, endDate, userId, propertyId) => {
         },
       },
     });
-    console.log(existingBooking);
 
     if (existingBooking.length > 0) {
       return { error: 'Already booked for the selected date range.' };
@@ -64,72 +63,162 @@ export const createBooking = async (startDate, endDate, userId, propertyId) => {
     return { error: error.message };
   }
 };
-export const getBookingsByCustomerId = async (id) => {
+export const getBookingsByCustomerId = async (id, filter) => {
   try {
-    const bookings = prisma.booking.findMany({
+    let { page, limit } = filter;
+    page = Number(page);
+    limit = Number(limit);
+    const skip = (page - 1) * limit;
+
+    const totalCount = await prisma.booking.count({
       where: {
         userId: id,
-
         bookingStatus: {
           notIn: [BookingStatus.PENDING, BookingStatus.FAILED],
         },
-
-        // OR: [
-        // 	{ bookingStatus: BOOKING_STATUS.CONFIRMED },
-        // 	{ bookingStatus: BOOKING_STATUS.AWAITING_OWNER_APPROVAL },
-        // 	{ bookingStatus: BOOKING_STATUS.CANCELLED },
-        // 	{ bookingStatus: BOOKING_STATUS.COMPLETED },
-        // 	// {
-        // 	// 	bookingStatus: 'PENDING',
-        // 	// 	createdAt: {
-        // 	// 		gte: new Date(Date.now() - 15 * 60 * 1000),
-        // 	// 	},
-        // 	// },
-        // ],
-      },
-      include: {
-        property: true,
-        // payments: true,
-        payments: {},
       },
     });
-    return bookings;
+    const bookings = await prisma.booking.findMany({
+      where: {
+        userId: id,
+        bookingStatus: {
+          notIn: [BookingStatus.PENDING, BookingStatus.FAILED],
+        },
+      },
+      include: {
+        property: {
+          include: {
+            propertyImages: true,
+            reviews: true,
+          },
+        },
+        payments: {
+          where: {
+            status: {
+              in: [PaymentStatus.SUCCESS, PaymentStatus.REFUNDED],
+            },
+          },
+          select: {
+            status: true,
+            amount: true,
+          },
+        },
+      },
+      orderBy: {
+        updatedAt: 'desc',
+      },
+      skip,
+      take: limit,
+    });
+
+    return {
+      bookings,
+      pagination: {
+        totalCount,
+        page,
+        limit,
+      },
+    };
   } catch (error) {
     console.error('Error getting bookings:', error);
     throw new Error('Failed to get bookings');
   }
 };
-export const getBookingsByOwnerId = async (ownerId) => {
+export const getBookingsByOwnerId = async (ownerId, filter) => {
   try {
-    const bookings = prisma.booking.findMany({
+    let { page, limit, status } = filter;
+    let statusFilter = {};
+
+    if (status === BookingStatus.AWAITING_OWNER_APPROVAL) {
+      statusFilter = {
+        bookingStatus: status,
+        createdAt: {
+          // gte: new Date(Date.now() - 3 * 60 * 1000),
+          // gte: new Date(Date.now() - 24 * 60 * 60 * 1000), //ONE DAY
+        },
+      };
+    } else {
+      statusFilter = {
+        bookingStatus: status,
+      };
+    }
+    console.log(statusFilter);
+    page = Number(page);
+    limit = Number(limit);
+    const skip = (page - 1) * limit;
+
+    const totalCount = await prisma.booking.count({
       where: {
         property: {
           ownerId,
         },
         OR: [
-          { bookingStatus: BookingStatus.CONFIRMED },
-          {
-            bookingStatus: BookingStatus.AWAITING_OWNER_APPROVAL,
-            createdAt: {
-              // gte: new Date(Date.now() - 3 * 60 * 1000),
-              gte: new Date(Date.now() - 24 * 60 * 60 * 1000), //ONE DAY
-            },
-          },
-          { bookingStatus: BookingStatus.CANCELLED },
-          { bookingStatus: BookingStatus.COMPLETED },
+          statusFilter,
+          // { bookingStatus: BookingStatus.CONFIRMED },
+          // {
+          //   bookingStatus: BookingStatus.AWAITING_OWNER_APPROVAL,
+          //   createdAt: {
+          //     // gte: new Date(Date.now() - 3 * 60 * 1000),
+          //     gte: new Date(Date.now() - 24 * 60 * 60 * 1000), //ONE DAY
+          //   },
+          // },
+          // { bookingStatus: BookingStatus.CANCELLED },
+          // { bookingStatus: BookingStatus.COMPLETED },
+        ],
+      },
+    });
+    const bookings = await prisma.booking.findMany({
+      where: {
+        property: {
+          ownerId,
+        },
+        OR: [
+          statusFilter,
+          // { bookingStatus: BookingStatus.CONFIRMED },
+          // {
+          //   bookingStatus: BookingStatus.AWAITING_OWNER_APPROVAL,
+          //   createdAt: {
+          //     // gte: new Date(Date.now() - 3 * 60 * 1000),
+          //     gte: new Date(Date.now() - 24 * 60 * 60 * 1000), //ONE DAY
+          //   },
+          // },
+          // { bookingStatus: BookingStatus.CANCELLED },
+          // { bookingStatus: BookingStatus.COMPLETED },
         ],
       },
       include: {
         user: true,
-        payments: true,
+        payments: {
+          where: {
+            status: {
+              in: [PaymentStatus.SUCCESS, PaymentStatus.REFUNDED],
+            },
+          },
+          select: {
+            status: true,
+            amount: true,
+          },
+        },
         property: {
           include: {
             propertyImages: true,
           },
         },
       },
+      orderBy: {
+        updatedAt: 'desc',
+      },
+      skip,
+      take: limit,
     });
-    return bookings;
+    return {
+      bookings,
+      pagination: {
+        totalCount,
+        page,
+        limit,
+      },
+    };
   } catch (error) {
     console.error('Error getting bookings:', error);
     throw new Error('Failed to get bookings');

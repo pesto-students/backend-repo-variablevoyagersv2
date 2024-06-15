@@ -10,23 +10,30 @@ export const createBooking = async (req, res) => {
       userId,
       propertyId
     );
-    res.status(201).json(booking);
+
+    console.log(booking);
+    res
+      .status(201)
+      .json({ success: true, status: 201, data: booking, message: 'success' });
   } catch (error) {
-    console.error('Error creating booking:', error);
-    res.status(500).json({ error: error.message });
+    console.log('Error creating booking:', error);
+    // res.status(403).json({ success: false, status: 403, error: error.message });
+    res.status(403).json({ success: false, status: 403, error: error.message });
   }
 };
 
 export const getAllCustomerBookings = async (req, res) => {
   try {
     const id = req.params.id;
-    const result = await BookingService.getBookingsByCustomerId(id);
+
+    const result = await BookingService.getBookingsByCustomerId(id, req.query);
     if (result) {
       return res.status(200).json({
         message: 'success',
-        data: result,
+        data: result.bookings,
         status: 200,
         success: true,
+        ...result.pagination,
       });
     }
     return res.status(409).json({
@@ -42,13 +49,15 @@ export const getAllCustomerBookings = async (req, res) => {
 export const getAllOwnerBookings = async (req, res) => {
   try {
     const id = req.params.id;
-    const result = await BookingService.getBookingsByOwnerId(id);
+    const result = await BookingService.getBookingsByOwnerId(id, req.query);
+
     if (result) {
       return res.status(200).json({
         message: 'success',
-        data: result,
+        data: result.bookings,
         status: 200,
         success: true,
+        ...result.pagination,
       });
     }
     return res.status(409).json({
@@ -105,6 +114,7 @@ export const updateBookingStatus = async (req, res) => {
 
     // Owner operations
     if (role === Roles.OWNER) {
+      console.log(bookingStatus, role);
       if (
         currentBooking.bookingStatus === BookingStatus.AWAITING_OWNER_APPROVAL
       ) {

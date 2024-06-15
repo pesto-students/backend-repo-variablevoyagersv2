@@ -21,7 +21,7 @@ export const createBookingOrder = async (req, res) => {
     console.log(result);
 
     if (result.error) {
-      return res.status(400).json({ error: result.error });
+      return res.status(409).json({ error: result.error });
     }
 
     const options = {
@@ -34,9 +34,11 @@ export const createBookingOrder = async (req, res) => {
     razorpay.orders.create(options, (err, order) => {
       if (err) {
         console.error('Error creating Razorpay order:', err);
-        return res
-          .status(500)
-          .json({ error: 'Could not create payment order' });
+        return res.status(500).json({
+          success: false,
+          status: 500,
+          error: 'Could not create payment order',
+        });
       }
 
       return res.status(200).json({
@@ -59,6 +61,7 @@ export const confirmPayment = async (req, res) => {
     orderId,
     paymentId,
     signature,
+    amount,
     status = PaymentStatus.SUCCESS,
   } = req.body;
 
@@ -89,6 +92,7 @@ export const confirmPayment = async (req, res) => {
         paymentId,
         booking,
         status,
+        amount,
       });
     } else {
       result = await PaymentService.createFailedPayment({
@@ -96,6 +100,7 @@ export const confirmPayment = async (req, res) => {
         paymentId,
         booking,
         status,
+        amount,
       });
     }
 

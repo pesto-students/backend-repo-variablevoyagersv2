@@ -6,7 +6,7 @@ export const verifyToken = (req, res, next) => {
   if (!authHeader?.startsWith('Bearer ')) {
     return res.status(400).json({
       message: 'Token not found',
-      status: 'error',
+      status: 400,
     });
   }
   const token = authHeader.split(' ')[1];
@@ -14,7 +14,7 @@ export const verifyToken = (req, res, next) => {
   if (!token) {
     return res.status(400).json({
       message: 'Token not found',
-      status: 'error',
+      status: 400,
     });
   }
 
@@ -22,7 +22,7 @@ export const verifyToken = (req, res, next) => {
     if (err) {
       return res.status(401).json({
         message: 'Unauthorised',
-        status: 'error',
+        status: 401,
       });
     }
 
