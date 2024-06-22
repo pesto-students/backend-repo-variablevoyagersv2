@@ -9,10 +9,10 @@ generator client {
 }
 
 datasource db {
-  provider          = "mysql"
+  provider = "mysql"
   // url               = env("DATABASE_URL")
   // shadowDatabaseUrl = env("SHADOW_DATABASE_URL")
-  url = env("DATABASE_URL_LOCAL")
+  url      = env("DATABASE_URL_LOCAL")
 }
 
 enum Roles {
@@ -36,11 +36,6 @@ enum PaymentStatus {
   REFUNDED
 }
 
-enum PaymentMethod {
-  CASH
-  UPI
-}
-
 model OTP {
   id      String   @id @default(uuid())
   email   String   @unique
@@ -54,7 +49,6 @@ model User {
   isNewUser  Boolean    @default(true)
   firstName  String?
   lastName   String?
-  password   String?
   phone      String?    @unique
   role       Roles      @default(CUSTOMER)
   avatar     String?
@@ -70,18 +64,18 @@ model User {
 model Property {
   id             String          @id @default(uuid())
   propertyName   String
-  description    String
+  description    String          @db.VarChar(600)
   capacity       String
   price          String
   checkInTime    String
   checkOutTime   String
-  address        String
+  address        String          @db.VarChar(300)
   city           String
   country        String
   pincode        String?
   lat            String?
   lng            String?
-  extraInfo      String?
+  extraInfo      String?         @db.VarChar(400)
   createdAt      DateTime        @default(now())
   updatedAt      DateTime        @updatedAt
   isDeleted      Boolean         @default(false)
@@ -112,14 +106,16 @@ model PropertyImage {
 model Review {
   id         String   @id @default(uuid())
   rating     Float
-  review     String
+  review     String   @db.VarChar(300)
   createdAt  DateTime @default(now())
   updatedAt  DateTime @updatedAt
   isDeleted  Boolean  @default(false)
-  userId     String   @unique
+  userId     String
   user       User     @relation(fields: [userId], references: [id])
   propertyId String
   property   Property @relation(fields: [propertyId], references: [id])
+  bookingId  String
+  booking    Booking  @relation(fields: [bookingId], references: [id])
 }
 
 model PropertyTags {
@@ -150,6 +146,7 @@ model Booking {
   bookingDate     DateTime          @default(now())
   payments        Payment[]
   bookingPayments BookingPayments[]
+  review          Review[]
 }
 
 model BookingPayments {
@@ -167,7 +164,6 @@ model Payment {
   amount         Decimal           @default(0)
   createdAt      DateTime          @default(now())
   updatedAt      DateTime          @updatedAt
-  paymentMethod  PaymentMethod
   status         PaymentStatus
   transactionId  String            @default(uuid())
   bookingId      String
