@@ -1,5 +1,5 @@
 import { BOOKING_STATUS } from '@/constants/status.constant';
-import { PrismaClient } from '@prisma/client';
+import { BookingStatus, PrismaClient } from '@prisma/client';
 
 const prisma = new PrismaClient();
 
@@ -77,20 +77,34 @@ export const findById = async (id) => {
       bookings: {
         where: {
           OR: [
-            { bookingStatus: BOOKING_STATUS.CONFIRMED },
-            { bookingStatus: BOOKING_STATUS.AWAITING_OWNER_APPROVAL },
+            { bookingStatus: BookingStatus.CONFIRMED },
+            { bookingStatus: BookingStatus.COMPLETED },
+            { bookingStatus: BookingStatus.AWAITING_OWNER_APPROVAL },
             {
-              bookingStatus: BOOKING_STATUS.PENDING,
+              bookingStatus: BookingStatus.PENDING,
               // createdAt: {
               //   gte: new Date(Date.now() - 3 * 60 * 1000),
               // },
             },
           ],
         },
+        // select: {
+        //   bookingStatus: true,
+        //   review: true,
+        // },
       },
-      reviews: true,
+      // bookings: {
+      //   select: {
+      //     id: true,
+      //     email: true,
+      //     firstName: true,
+      //     lastName: true,
+      //     phone: true,
+      //     avatar: true,
+      //   },
+      // },
       propertyImages: true,
-
+      review: true,
       owner: {
         select: {
           id: true,

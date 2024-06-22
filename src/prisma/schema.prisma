@@ -56,9 +56,9 @@ model User {
   updatedAt  DateTime   @updatedAt
   isDeleted  Boolean    @default(false)
   properties Property[]
-  reviews    Review[]
   bookings   Booking[]
   payments   Payment[]
+  review     Review[]
 }
 
 model Property {
@@ -82,10 +82,10 @@ model Property {
   propertyImages PropertyImage[]
   ownerId        String
   owner          User            @relation(fields: [ownerId], references: [id])
-  reviews        Review[]
   propertyTags   PropertyTags[]
   bookings       Booking[]
   amenities      Amenity[]
+  review         Review[]
 }
 
 model Amenity {
@@ -112,10 +112,10 @@ model Review {
   isDeleted  Boolean  @default(false)
   userId     String
   user       User     @relation(fields: [userId], references: [id])
-  propertyId String
-  property   Property @relation(fields: [propertyId], references: [id])
   bookingId  String
   booking    Booking  @relation(fields: [bookingId], references: [id])
+  propertyId String
+  property   Property @relation(fields: [propertyId], references: [id])
 }
 
 model PropertyTags {
