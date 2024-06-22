@@ -19,11 +19,7 @@ bookingRouter.post(
   AuthMiddleware.verifyToken,
   BookingController.createBooking
 );
-bookingRouter.get(
-  '/is-property-booked',
-  AuthMiddleware.verifyToken,
-  BookingController.getIsPropertyBooked
-);
+
 bookingRouter.get(
   '/:id',
   AuthMiddleware.verifyToken,
