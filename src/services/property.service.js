@@ -117,7 +117,7 @@ export const findById = async (id) => {
       },
     },
   });
-  console.log(propertyWithTags);
+
   const propertyTagsWithNames = propertyWithTags.propertyTags.map(
     (propertyTag) => propertyTag.tag.tagName
   );
@@ -134,7 +134,6 @@ export const findById = async (id) => {
 
 // get all propertie
 export const findMany = async (filters) => {
-  console.log(filters);
   const { city, search, propertyTags, page = 1, limit = 8 } = filters;
 
   // Convert page and limit to numbers

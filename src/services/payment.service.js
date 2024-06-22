@@ -7,7 +7,6 @@ export const createPayment = async (data) => {
     const payment = await prisma.payment.create({
       data: {
         amount: amount / 100,
-        paymentMethod: 'UPI',
         status: PaymentStatus.SUCCESS,
         transactionId: paymentId,
         bookingId,
@@ -31,7 +30,6 @@ export const createFailedPayment = async (data) => {
     const payment = await prisma.payment.create({
       data: {
         amount: amount / 100,
-        paymentMethod: 'UPI',
         status: PaymentStatus.FAILED,
         transactionId: paymentId,
         bookingId,

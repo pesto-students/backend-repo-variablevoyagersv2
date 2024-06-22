@@ -65,7 +65,7 @@ export const createBooking = async (startDate, endDate, userId, propertyId) => {
 };
 export const getBookingsByCustomerId = async (id, filter) => {
   try {
-    let { page, limit } = filter;
+    let { page, limit, status } = filter;
     page = Number(page);
     limit = Number(limit);
     const skip = (page - 1) * limit;
@@ -73,23 +73,19 @@ export const getBookingsByCustomerId = async (id, filter) => {
     const totalCount = await prisma.booking.count({
       where: {
         userId: id,
-        bookingStatus: {
-          notIn: [BookingStatus.PENDING, BookingStatus.FAILED],
-        },
+        bookingStatus: status,
       },
     });
     const bookings = await prisma.booking.findMany({
       where: {
         userId: id,
-        bookingStatus: {
-          notIn: [BookingStatus.PENDING, BookingStatus.FAILED],
-        },
+        bookingStatus: status,
       },
       include: {
+        review: true,
         property: {
           include: {
             propertyImages: true,
-            reviews: true,
           },
         },
         payments: {
@@ -259,6 +255,40 @@ export const getBookingById = async (id) => {
       throw new Error('Booking not found');
     }
     return booking;
+  } catch (error) {
+    console.error('Error getting booking:', error);
+    throw new Error('Failed to get booking');
+  }
+};
+
+export const getIsPropertyBooked = async (filter) => {
+  const { id, role } = filter;
+  try {
+    const completedBooking = await prisma.booking.findFirst({
+      where: {
+        userId: id,
+        bookingStatus: 'COMPLETED', // Assuming BookingStatus.COMPLETED is a string or use the appropriate enum
+      },
+    });
+
+    if (!completedBooking) {
+      return {
+        isBooked: false,
+        review: [],
+      };
+    }
+
+    const review = await prisma.review.findFirst({
+      where: {
+        userId: id,
+        propertyId: completedBooking.propertyId,
+      },
+    });
+
+    return {
+      isBooked: true,
+      review: review ? review : [],
+    };
   } catch (error) {
     console.error('Error getting booking:', error);
     throw new Error('Failed to get booking');
