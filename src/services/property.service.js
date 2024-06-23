@@ -104,7 +104,7 @@ export const findById = async (id) => {
       //   },
       // },
       propertyImages: true,
-      review: true,
+      reviews: true,
       owner: {
         select: {
           id: true,
@@ -215,25 +215,49 @@ export const findMany = async (filters) => {
   };
 };
 
-export const findManyById = async (id) => {
-  return await prisma.property.findMany({
-    where: { ownerId: id },
-    include: {
-      propertyImages: true,
-      propertyTags: {
-        select: {
-          tag: {
-            select: {
-              tagName: true,
+export const findManyById = async (id, filter) => {
+  try {
+    let { page, limit } = filter;
+    page = Number(page);
+    limit = Number(limit);
+    const skip = (page - 1) * limit;
+
+    const totalCount = await prisma.property.count({
+      where: { ownerId: id },
+    });
+
+    const properties = await prisma.property.findMany({
+      where: { ownerId: id },
+      include: {
+        propertyImages: true,
+        propertyTags: {
+          select: {
+            tag: {
+              select: {
+                tagName: true,
+              },
             },
           },
         },
       },
-    },
-    orderBy: {
-      updatedAt: 'desc',
-    },
-  });
+      orderBy: {
+        updatedAt: 'desc',
+      },
+      skip,
+      take: limit,
+    });
+    return {
+      properties,
+      pagination: {
+        totalCount,
+        page,
+        limit,
+      },
+    };
+  } catch (error) {
+    console.error('Error getting properties:', error);
+    throw new Error('Failed to get properties');
+  }
 };
 
 export const update = async (id, reqObj) => {

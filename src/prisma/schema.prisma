@@ -58,7 +58,6 @@ model User {
   properties Property[]
   bookings   Booking[]
   payments   Payment[]
-  review     Review[]
 }
 
 model Property {
@@ -85,7 +84,7 @@ model Property {
   propertyTags   PropertyTags[]
   bookings       Booking[]
   amenities      Amenity[]
-  review         Review[]
+  reviews        Review[]
 }
 
 model Amenity {
@@ -107,15 +106,15 @@ model Review {
   id         String   @id @default(uuid())
   rating     Float
   review     String   @db.VarChar(300)
+  avatar     String?
+  fullName   String   @db.VarChar(300)
   createdAt  DateTime @default(now())
   updatedAt  DateTime @updatedAt
   isDeleted  Boolean  @default(false)
-  userId     String
-  user       User     @relation(fields: [userId], references: [id])
-  bookingId  String
-  booking    Booking  @relation(fields: [bookingId], references: [id])
   propertyId String
   property   Property @relation(fields: [propertyId], references: [id])
+  bookingId  String   @unique
+  booking    Booking  @relation(fields: [bookingId], references: [id])
 }
 
 model PropertyTags {
@@ -146,7 +145,7 @@ model Booking {
   bookingDate     DateTime          @default(now())
   payments        Payment[]
   bookingPayments BookingPayments[]
-  review          Review[]
+  reviews         Review[]
 }
 
 model BookingPayments {

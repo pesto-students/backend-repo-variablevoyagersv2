@@ -82,9 +82,11 @@ export const getBookingsByCustomerId = async (id, filter) => {
         bookingStatus: status,
       },
       include: {
-        review: true,
+        reviews: true,
+        user: true,
         property: {
           include: {
+            reviews: true,
             propertyImages: true,
           },
         },
