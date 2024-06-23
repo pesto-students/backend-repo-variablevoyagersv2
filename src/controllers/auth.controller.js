@@ -1,6 +1,6 @@
 import { config } from '@/config';
 import { UserService, JWTService, EmailService } from '@/services';
-import bcrypt from 'bcrypt';a
+import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 
 export const loginOtp = async (req, res) => {
