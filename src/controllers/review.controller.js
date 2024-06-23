@@ -2,18 +2,6 @@ import { ReviewService } from '@/services';
 
 export const createReview = async (req, res) => {
   try {
-    // const reviewAlreadyDoneByUser = await ReviewService.findByUserId(
-    //   req.body.userId
-    // );
-
-    // if (reviewAlreadyDoneByUser) {
-    //   return res.status(409).json({
-    //     message: 'review already exists',
-    //     status: 409,
-    //     success: false,
-    //   });
-    // }
-
     const newReview = await ReviewService.create(req.body);
     return res.status(201).json({
       message: 'success',

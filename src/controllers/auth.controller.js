@@ -1,43 +1,8 @@
 import { config } from '@/config';
-import { UserService, JWTService } from '@/services';
+import { UserService, JWTService, EmailService } from '@/services';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
-import nodemailer from 'nodemailer';
 
-const transporter = nodemailer.createTransport({
-  host: 'smtp.ethereal.email',
-  port: 587,
-  auth: {
-    user: 'helga.jerde84@ethereal.email',
-    pass: 'H3zTZ1Ad8tuSKxvDVp',
-  },
-});
-
-// Generate a random OTP
-const generateOTP = () => {
-  const digits = '0123456789';
-  let OTP = '';
-  for (let i = 0; i < 6; i++) {
-    OTP += digits[Math.floor(Math.random() * 10)];
-  }
-  return OTP.toString();
-};
-
-const sendOTPEmail = async (email, otp) => {
-  const mailOptions = {
-    from: 'Book My Venue <vadgama.mehul23@gmail.com>',
-    to: email,
-    subject: 'OTP for Login',
-    text: `Your OTP is ${otp}`,
-  };
-
-  try {
-    await transporter.sendMail(mailOptions);
-    console.log('OTP sent to email');
-  } catch (err) {
-    console.error('Error sending OTP:', err);
-  }
-};
 
 export const loginOtp = async (req, res) => {
   const { email } = req.body;
@@ -48,11 +13,10 @@ export const loginOtp = async (req, res) => {
     await UserService.createEmailInOtp(email);
   }
 
-  const otp = generateOTP();
+  const otp = Math.floor(100000 + Math.random() * 900000).toString();
 
-  // sendOTPEmail(email, otp);
+  EmailService.sendOTPEmail(email, otp);
 
-  // Store the OTP in the database (you can use a separate table or add a new field to the user table)
   await UserService.updateOtp(email, { otp: otp });
 
   res.status(200).json({ message: 'OTP sent to your email' });
@@ -107,14 +71,6 @@ export const verifyOtp = async (req, res) => {
 
 export const createUser = async (req, res) => {
   try {
-    // const existingEmail = await UserService.findByEmail(req.body.email);
-    // if (existingEmail) {
-    // 	return res.status(409).json({
-    // 		message: 'Email already exists',
-    // 		status: 409,
-    // 		success: false,
-    // 	});
-    // }
     if (req.body.phone) {
       const existingPhone = await UserService.findByPhone(req.body.phone);
       if (existingPhone) {

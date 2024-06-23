@@ -5,5 +5,6 @@ import * as ReviewService from './review.service';
 import * as JWTService from './jwt.service';
 import * as BookingService from './booking.service';
 import * as PaymentService from './payment.service';
+import * as EmailService from './email.service';
 
-export { UserService, PropertyService, ReviewService, FileUploadService, JWTService, BookingService, PaymentService };
+export { UserService, PropertyService, ReviewService, FileUploadService, JWTService, BookingService, PaymentService, EmailService };

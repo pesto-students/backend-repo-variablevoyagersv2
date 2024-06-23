@@ -23,4 +23,12 @@ export const config = {
 		KEY_ID: process.env.RAZORPAY_KEY_ID,
 		KEY_SECRET: process.env.RAZORPAY_KEY_SECRET,
 	},
+	EMAIL: {
+		EMAIL_HOST: process.env.EMAIL_HOST,
+		EMAIL_PORT: process.env.EMAIL_PORT,
+		EMAIL_USERNAME: process.env.EMAIL_USER,
+		EMAIL_PASSWORD: process.env.EMAIL_PASSWORD,
+		FROM_EMAIL: process.env.FROM_EMAIL,
+	}
 };
+
