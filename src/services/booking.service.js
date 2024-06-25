@@ -248,6 +248,7 @@ export const getBookingById = async (id) => {
         user: true,
         property: {
           include: {
+            owner: true,
             propertyImages: true,
           },
         },
@@ -318,6 +319,18 @@ export const updateBookingStatus = async (
       }
 
       return updatedBooking;
+    });
+  } catch (error) {
+    console.error('Error updating booking status:', error);
+    throw new Error('Failed to update booking status');
+  }
+};
+
+export const updateBookingEmailStatus = async (id, data) => {
+  try {
+    return await prisma.booking.update({
+      where: { id },
+      data,
     });
   } catch (error) {
     console.error('Error updating booking status:', error);

@@ -143,6 +143,7 @@ model Booking {
   propertyId      String
   property        Property          @relation(fields: [propertyId], references: [id])
   bookingDate     DateTime          @default(now())
+  isEmailSend     Boolean           @default(false)
   payments        Payment[]
   bookingPayments BookingPayments[]
   reviews         Review[]

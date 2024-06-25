@@ -25,11 +25,18 @@ bookingRouter.get(
   AuthMiddleware.verifyToken,
   BookingController.getBookingById
 );
+bookingRouter.get(
+  '/send-mail/:id',
+  AuthMiddleware.verifyToken,
+  BookingController.confirmBookingEmail
+);
+
 bookingRouter.put(
   '/:id',
   AuthMiddleware.verifyToken,
   BookingController.updateBookingStatus
 );
+
 bookingRouter.put(
   '/remove-booking/:id',
   AuthMiddleware.verifyToken,

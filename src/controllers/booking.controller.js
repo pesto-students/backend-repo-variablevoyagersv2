@@ -1,4 +1,4 @@
-import { BookingService } from '@/services';
+import { BookingService, EmailService } from '@/services';
 import { BookingStatus, PaymentStatus, Roles } from '@prisma/client';
 
 export const createBooking = async (req, res) => {
@@ -10,8 +10,9 @@ export const createBooking = async (req, res) => {
       userId,
       propertyId
     );
+    console.log("Email Send Owner and Cus New booking");
 
-    console.log(booking);
+    // console.log(booking);
     res
       .status(201)
       .json({ success: true, status: 201, data: booking, message: 'success' });
@@ -90,6 +91,9 @@ export const getBookingById = async (req, res) => {
   try {
     const { id } = req.params;
     const booking = await BookingService.getBookingById(id);
+    if (!booking) {
+      return res.status(404).json({ message: 'Booking not found' });
+    }
     res.json(booking);
   } catch (error) {
     console.error('Error getting booking:', error);
@@ -114,7 +118,7 @@ export const updateBookingStatus = async (req, res) => {
 
     // Owner operations
     if (role === Roles.OWNER) {
-      console.log(bookingStatus, role);
+      // console.log(bookingStatus, role);
       if (
         currentBooking.bookingStatus === BookingStatus.AWAITING_OWNER_APPROVAL
       ) {
@@ -124,6 +128,7 @@ export const updateBookingStatus = async (req, res) => {
             bookingStatus,
             PaymentStatus.SUCCESS
           );
+          console.log("Email Send Owner accept your booking");
           return res.status(200).json({
             message: 'Booking confirmed successfully',
             status: 200,
@@ -136,6 +141,7 @@ export const updateBookingStatus = async (req, res) => {
             bookingStatus,
             PaymentStatus.REFUNDED
           );
+          console.log("Email Send Owner Reject your booking");
           return res.status(200).json({
             message: 'Booking canceled successfully',
             status: 200,
@@ -194,6 +200,7 @@ export const updateBookingStatus = async (req, res) => {
   }
 };
 
+
 export const removeBooking = async (req, res) => {
   try {
     const { id } = req.params;
@@ -205,6 +212,32 @@ export const removeBooking = async (req, res) => {
     });
   } catch (error) {
     console.error('Error updating booking status:', error);
+    res.status(500).json({ error: error.message });
+  }
+};
+
+export const confirmBookingEmail = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const booking = await BookingService.getBookingById(id);
+    if (!booking) {
+      return res.status(404).json({ message: 'Booking not found' });
+    }
+    if (!booking.isEmailSend) {
+      // Send email logic here
+      await EmailService.sendBookingEmails(booking);
+
+      // Update booking to mark email as sent
+      await BookingService.updateBookingEmailStatus(id, { isEmailSend: true })
+    }
+    // const result = await EmailService.sendBookingEmails(booking);
+    return res.status(200).json({
+      message: 'Booking Conformation Email Sent to Customer and Owner',
+      data: booking,
+      status: 200,
+      success: true,
+    });
+  } catch (error) {
     res.status(500).json({ error: error.message });
   }
 };

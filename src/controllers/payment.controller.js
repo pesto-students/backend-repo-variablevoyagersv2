@@ -18,8 +18,8 @@ export const createBookingOrder = async (req, res) => {
       userId,
       propertyId
     );
-    console.log(result);
-
+    // console.log(result);
+    // console.log("Email Send Owner and Cus New booking");
     if (result.error) {
       return res.status(409).json({ error: result.error });
     }
@@ -67,8 +67,8 @@ export const confirmPayment = async (req, res) => {
 
   try {
     const booking = await BookingService.getBookingById(bookingId);
-    console.log(booking);
-
+    // console.log(booking);
+    
     if (
       !booking ||
       (booking.bookingStatus !== BookingStatus.PENDING &&
@@ -94,6 +94,7 @@ export const confirmPayment = async (req, res) => {
         status,
         amount,
       });
+      
     } else {
       result = await PaymentService.createFailedPayment({
         bookingId,
@@ -114,3 +115,4 @@ export const confirmPayment = async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 };
+
