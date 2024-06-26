@@ -309,6 +309,15 @@ export const updateBookingStatus = async (
       const updatedBooking = await prisma.booking.update({
         where: { id: bookingId },
         data: { bookingStatus },
+        include:{
+          user:true,
+          property:{
+            include:{
+              owner:true
+            }
+          },
+          payments:true,
+        }
       });
 
       if (paymentStatus === PaymentStatus.REFUNDED) {

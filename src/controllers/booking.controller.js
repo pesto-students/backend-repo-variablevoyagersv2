@@ -107,6 +107,7 @@ export const updateBookingStatus = async (req, res) => {
     const { bookingStatus, role } = req.body;
 
     const currentBooking = await BookingService.getBookingById(id);
+    // console.log("currentBooking",currentBooking);
 
     if (currentBooking.bookingStatus === BookingStatus.CANCELLED) {
       return res.status(400).json({
@@ -128,6 +129,7 @@ export const updateBookingStatus = async (req, res) => {
             bookingStatus,
             PaymentStatus.SUCCESS
           );
+          await EmailService.sendEmailToCusAfterAcceptBooking(updatedBooking);
           console.log("Email Send Owner accept your booking");
           return res.status(200).json({
             message: 'Booking confirmed successfully',
@@ -142,6 +144,7 @@ export const updateBookingStatus = async (req, res) => {
             PaymentStatus.REFUNDED
           );
           console.log("Email Send Owner Reject your booking");
+          await EmailService.sendEmailToCusAfterRejetBooking(updatedBooking);
           return res.status(200).json({
             message: 'Booking canceled successfully',
             status: 200,
@@ -173,6 +176,7 @@ export const updateBookingStatus = async (req, res) => {
           bookingStatus,
           PaymentStatus.REFUNDED
         );
+        await EmailService.sendEmailToOwnerAfterCancelBooking(updatedBooking);
         return res.status(200).json({
           message: 'Booking canceled successfully',
           status: 200,
@@ -199,7 +203,6 @@ export const updateBookingStatus = async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 };
-
 
 export const removeBooking = async (req, res) => {
   try {
