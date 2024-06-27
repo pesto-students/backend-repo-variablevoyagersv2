@@ -46,7 +46,6 @@ model OTP {
 model User {
   id         String     @id @default(uuid())
   email      String     @unique
-  isNewUser  Boolean    @default(true)
   firstName  String?
   lastName   String?
   phone      String?    @unique
@@ -143,7 +142,6 @@ model Booking {
   propertyId      String
   property        Property          @relation(fields: [propertyId], references: [id])
   bookingDate     DateTime          @default(now())
-  isEmailSend     Boolean           @default(false)
   payments        Payment[]
   bookingPayments BookingPayments[]
   reviews         Review[]

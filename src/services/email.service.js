@@ -16,7 +16,7 @@ function formatDate(dateString) {
     month: 'long',
     day: 'numeric',
     hour: '2-digit',
-    minute: '2-digit'
+    minute: '2-digit',
   });
 }
 
@@ -35,7 +35,7 @@ export const sendOTPEmail = async (email, otp) => {
           </div>
           <p style="font-size: 14px; color: #888; margin-top: 20px;">This OTP will expire in 10 minutes.</p>
         </div>
-      `
+      `,
   };
 
   try {
@@ -46,15 +46,15 @@ export const sendOTPEmail = async (email, otp) => {
   }
 };
 
-export const sendBookingEmails = async (booking) => {
-
+export const sendBookingEmails = async (booking, amount) => {
+  console.log('Inside sendBookingEmails');
   const customerEmail = booking.user.email;
   const ownerEmail = booking.property.owner.email;
 
   let customerMailOptions = {
     from: '"Book My Venue" <bookmyvenue7@gmail.com>',
     to: customerEmail,
-    subject: "Booking Confirmation",
+    subject: 'Booking Confirmation',
     html: `
        <!DOCTYPE html>
 <html lang="en">
@@ -171,7 +171,7 @@ export const sendBookingEmails = async (booking) => {
                 </tr>
                 <tr>
                     <th>Total Amount Paid</th>
-                    <td>Rs.${booking.payments[0].amount}</td>
+                    <td>Rs.${amount}</td>
                 </tr>
 
             </table>
@@ -206,13 +206,13 @@ export const sendBookingEmails = async (booking) => {
 </body>
 
 </html>
-    `
+    `,
   };
 
   let ownerMailOptions = {
     from: '"Book My Venue" <bookmyvenue7@gmail.com>',
     to: ownerEmail,
-    subject: "New Booking Request",
+    subject: 'New Booking Request',
     html: `
      <!DOCTYPE html>
 <html lang="en">
@@ -329,7 +329,7 @@ export const sendBookingEmails = async (booking) => {
                 </tr>
                 <tr>
                     <th>Total Amount Paid</th>
-                    <td>Rs.${booking.payments[0].amount}</td>
+                    <td>Rs.${amount}</td>
                 </tr>
 
             </table>
@@ -363,25 +363,24 @@ export const sendBookingEmails = async (booking) => {
 </body>
 
 </html>
-    `
+    `,
   };
 
   try {
     let customerInfo = await transporter.sendMail(customerMailOptions);
-    console.log("Email sent to customer: " + customerInfo.response);
+    console.log('Email sent to customer: ' + customerInfo.response);
 
     // Send email to owner
     let ownerInfo = await transporter.sendMail(ownerMailOptions);
-    console.log("Email sent to owner: " + ownerInfo.response);
+    console.log('Email sent to owner: ' + ownerInfo.response);
 
-    return { success: true, message: "Emails sent successfully" };
+    return { success: true, message: 'Emails sent successfully' };
   } catch (err) {
     console.error('Error sending OTP:', err);
   }
 };
 
 export const sendEmailToCusAfterAcceptBooking = async (booking) => {
-
   const customerEmail = booking.user.email;
 
   let customerMailOptions = {
@@ -502,7 +501,7 @@ export const sendEmailToCusAfterAcceptBooking = async (booking) => {
                     <th>Total Amount</th>
                     <td>Rs.${booking.payments[0].amount}</td>
                 </tr>
-               
+
             </table>
         </div>
 
@@ -535,21 +534,20 @@ export const sendEmailToCusAfterAcceptBooking = async (booking) => {
 </body>
 
 </html>
-    `
+    `,
   };
 
   try {
     let customerInfo = await transporter.sendMail(customerMailOptions);
-    console.log("Email sent to customer: " + customerInfo.response);
+    console.log('Email sent to customer: ' + customerInfo.response);
 
-    return { success: true, message: "Emails sent successfully" };
+    return { success: true, message: 'Emails sent successfully' };
   } catch (err) {
     console.error('Error sending OTP:', err);
   }
 };
 
 export const sendEmailToCusAfterRejetBooking = async (booking) => {
-
   const customerEmail = booking.user.email;
 
   let customerMailOptions = {
@@ -638,7 +636,7 @@ export const sendEmailToCusAfterRejetBooking = async (booking) => {
           <h2>Booking Update</h2>
           <p>Dear ${booking.user.firstName},</p>
           <p>We regret to inform you that your booking request for ${booking.property.propertyName} has been declined by the property owner. We understand this may be disappointing, and we're here to assist you in finding an alternative venue.</p>
-          
+
           <div class="booking-details">
             <h3>Booking Information</h3>
             <table>
@@ -649,18 +647,18 @@ export const sendEmailToCusAfterRejetBooking = async (booking) => {
               <tr><th>Amount Paid</th><td>Rs.${booking.payments[0].amount}</td></tr>
             </table>
           </div>
-          
+
           <p>Here's what you can do next:</p>
           <ul>
             <li>Browse our other available properties for your dates</li>
             <li>Contact our customer support for assistance in finding an alternative</li>
             <li>Adjust your dates or requirements and try booking again</li>
           </ul>
-          
+
           <p>Payments related to this booking will be fully refunded to your original payment method within 5-7 business days.</p>
-          
+
           <a href="http://localhost:5173/" class="cta-button">Find Another Venue</a>
-          
+
           <p>We apologize for any inconvenience this may have caused. If you have any questions or need further assistance, please don't hesitate to contact our customer support team.</p>
         </div>
         <div class="footer">
@@ -668,21 +666,20 @@ export const sendEmailToCusAfterRejetBooking = async (booking) => {
         </div>
       </body>
       </html>
-    `
+    `,
   };
 
   try {
     let customerInfo = await transporter.sendMail(customerMailOptions);
-    console.log("Email sent to customer: " + customerInfo.response);
+    console.log('Email sent to customer: ' + customerInfo.response);
 
-    return { success: true, message: "Emails sent successfully" };
+    return { success: true, message: 'Emails sent successfully' };
   } catch (err) {
     console.error('Error sending OTP:', err);
   }
 };
 
 export const sendEmailToOwnerAfterCancelBooking = async (booking) => {
-
   const ownerEmail = booking.property.owner.email;
 
   let OwnerMailOptions = {
@@ -782,16 +779,16 @@ export const sendEmailToOwnerAfterCancelBooking = async (booking) => {
             <tr><th>Customer Name</th><td>${booking.user.firstName} ${booking.user.lastName}</td></tr>
               </table>
           </div>
-          
+
          <p>Next steps:</p>
           <ul>
             <li>Your property's availability for these dates has been automatically restored in our system.</li>
             <li>Any applicable cancellation fees will be processed according to your property's cancellation policy.</li>
             <li>You may want to review your calendar and consider any necessary adjustments.</li>
           </ul>
-          
+
          <p>We understand that cancellations can be inconvenient, and we appreciate your understanding. Our team is working to promote your property to secure new bookings for these dates.</p>
-                    
+
           <p>If you have any questions or concerns regarding this cancellation, please don't hesitate to contact our property support team.</p>
         </div>
         <div class="footer">
@@ -799,18 +796,15 @@ export const sendEmailToOwnerAfterCancelBooking = async (booking) => {
         </div>
       </body>
       </html>
-    `
+    `,
   };
 
   try {
     let OwnerInfo = await transporter.sendMail(OwnerMailOptions);
-    console.log("Email sent to Owner: " + OwnerInfo.response);
+    console.log('Email sent to Owner: ' + OwnerInfo.response);
 
-    return { success: true, message: "Emails sent successfully" };
+    return { success: true, message: 'Emails sent successfully' };
   } catch (err) {
     console.error('Error sending OTP:', err);
   }
 };
-
-
-

@@ -27,7 +27,7 @@ export const verifyOtp = async (req, res) => {
   const user = await UserService.findOtpEmail(email);
 
   if (!user || user.otp !== otp) {
-    return res.status(401).json({ error: 'Invalid OTP' });
+    return res.status(400).json({ error: 'Invalid OTP' });
   }
 
   // Check if OTP has expired

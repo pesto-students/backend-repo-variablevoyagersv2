@@ -418,9 +418,14 @@ export const updateCompletedBookings = async (currentDate) => {
     const updatedBookings = await prisma.booking.updateMany({
       where: {
         bookingStatus: BookingStatus.CONFIRMED,
-        paymentStatus: PaymentStatus.SUCCESS,
+        // paymentStatus: PaymentStatus.SUCCESS,
         endDate: {
           lt: currentDate,
+        },
+        payments: {
+          some: {
+            status: PaymentStatus.SUCCESS,
+          },
         },
       },
       data: {

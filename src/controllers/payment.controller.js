@@ -1,5 +1,5 @@
 import { config } from '@/config';
-import { BookingService, PaymentService } from '@/services';
+import { BookingService, EmailService, PaymentService } from '@/services';
 import * as Razorpay from 'razorpay';
 import crypto from 'crypto';
 
@@ -18,8 +18,7 @@ export const createBookingOrder = async (req, res) => {
       userId,
       propertyId
     );
-    // console.log(result);
-    // console.log("Email Send Owner and Cus New booking");
+
     if (result.error) {
       return res.status(409).json({ error: result.error });
     }
@@ -62,13 +61,13 @@ export const confirmPayment = async (req, res) => {
     paymentId,
     signature,
     amount,
+
     status = PaymentStatus.SUCCESS,
   } = req.body;
 
   try {
     const booking = await BookingService.getBookingById(bookingId);
-    // console.log(booking);
-    
+
     if (
       !booking ||
       (booking.bookingStatus !== BookingStatus.PENDING &&
@@ -94,7 +93,8 @@ export const confirmPayment = async (req, res) => {
         status,
         amount,
       });
-      
+      console.log('Result');
+      await EmailService.sendBookingEmails(booking, amount);
     } else {
       result = await PaymentService.createFailedPayment({
         bookingId,
@@ -115,4 +115,3 @@ export const confirmPayment = async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 };
-

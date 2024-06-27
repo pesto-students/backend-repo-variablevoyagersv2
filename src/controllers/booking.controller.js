@@ -10,7 +10,7 @@ export const createBooking = async (req, res) => {
       userId,
       propertyId
     );
-    console.log("Email Send Owner and Cus New booking");
+    console.log('Email Send Owner and Cus New booking');
 
     // console.log(booking);
     res
@@ -130,7 +130,7 @@ export const updateBookingStatus = async (req, res) => {
             PaymentStatus.SUCCESS
           );
           await EmailService.sendEmailToCusAfterAcceptBooking(updatedBooking);
-          console.log("Email Send Owner accept your booking");
+          console.log('Email Send Owner accept your booking');
           return res.status(200).json({
             message: 'Booking confirmed successfully',
             status: 200,
@@ -143,7 +143,7 @@ export const updateBookingStatus = async (req, res) => {
             bookingStatus,
             PaymentStatus.REFUNDED
           );
-          console.log("Email Send Owner Reject your booking");
+          console.log('Email Send Owner Reject your booking');
           await EmailService.sendEmailToCusAfterRejetBooking(updatedBooking);
           return res.status(200).json({
             message: 'Booking canceled successfully',
@@ -215,32 +215,6 @@ export const removeBooking = async (req, res) => {
     });
   } catch (error) {
     console.error('Error updating booking status:', error);
-    res.status(500).json({ error: error.message });
-  }
-};
-
-export const confirmBookingEmail = async (req, res) => {
-  try {
-    const { id } = req.params;
-    const booking = await BookingService.getBookingById(id);
-    if (!booking) {
-      return res.status(404).json({ message: 'Booking not found' });
-    }
-    if (!booking.isEmailSend) {
-      // Send email logic here
-      await EmailService.sendBookingEmails(booking);
-
-      // Update booking to mark email as sent
-      await BookingService.updateBookingEmailStatus(id, { isEmailSend: true })
-    }
-    // const result = await EmailService.sendBookingEmails(booking);
-    return res.status(200).json({
-      message: 'Booking Conformation Email Sent to Customer and Owner',
-      data: booking,
-      status: 200,
-      success: true,
-    });
-  } catch (error) {
     res.status(500).json({ error: error.message });
   }
 };

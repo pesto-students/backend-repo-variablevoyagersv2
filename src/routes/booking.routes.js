@@ -25,11 +25,6 @@ bookingRouter.get(
   AuthMiddleware.verifyToken,
   BookingController.getBookingById
 );
-bookingRouter.get(
-  '/send-mail/:id',
-  AuthMiddleware.verifyToken,
-  BookingController.confirmBookingEmail
-);
 
 bookingRouter.put(
   '/:id',
